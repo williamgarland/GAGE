@@ -26,6 +26,10 @@ public class SoundSource implements Indexable, Cleanable {
 		loop(1, 1);
 	}
 	
+	public void loop(float volume) {
+		loop(volume, 1);
+	}
+	
 	public void loop(float volume, float pitch) {
 		AL10.alSourcei(sourceId, AL10.AL_LOOPING, AL10.AL_TRUE);
 		AL10.alSourcef(sourceId, AL10.AL_GAIN, volume);
@@ -35,6 +39,10 @@ public class SoundSource implements Indexable, Cleanable {
 	
 	public void play() {
 		play(1, 1);
+	}
+	
+	public void play(float volume) {
+		play(volume, 1);
 	}
 	
 	public void play(float volume, float pitch) {
@@ -50,6 +58,10 @@ public class SoundSource implements Indexable, Cleanable {
 	
 	public void resume() {
 		play(1, 1);
+	}
+	
+	public void resume(float volume) {
+		play(volume, 1);
 	}
 	
 	public void resume(float volume, float pitch) {
