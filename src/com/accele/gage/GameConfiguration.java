@@ -17,7 +17,7 @@ public class GameConfiguration {
 
 	private static final double DEFAULT_TICKS_PER_SECOND = 25.0;
 	
-	private final String version = "1.0.1";
+	private final String version = "1.0.2";
 	private int fps;
 	double ticksPerSecond;
 	
@@ -35,7 +35,7 @@ public class GameConfiguration {
 	 * Deprecated features will be removed.</li>
 	 * <li>Minor updates are changes to the API that also maintain backwards compatibility.
 	 * Previous features that should not be used will be marked as deprecated.</li>
-	 * <li>Revision updates are bug fixes only; they do not indicate any API changes.</li>
+	 * <li>Revision updates are bug fixes only; they do not indicate any critical API changes.</li>
 	 * </ol>
 	 * 
 	 * @return the current version of the engine
