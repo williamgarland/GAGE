@@ -56,4 +56,21 @@ public class Font implements Indexable, Cleanable {
 		return chars[c].getHeight();
 	}
 	
+	public float getStringWidth(String str) {
+		float result = 0;
+		for (char c : str.toCharArray())
+			result += getCharWidth(c);
+		return result;
+	}
+	
+	public float getStringHeight(String str) {
+		float highest = 0;
+		for (char c : str.toCharArray()) {
+			float f = getCharHeight(c);
+			if (f > highest)
+				highest = f;
+		}
+		return highest;
+	}
+	
 }
