@@ -201,6 +201,7 @@ public class GAGE {
 		fontRegistry.getEntries().forEach(e -> e.clean());
 		shaderRegistry.getEntries().forEach(e -> e.clean());
 		window.clean();
+		soundHandler.clean();
 		
 		instance = null;
 		System.gc();
