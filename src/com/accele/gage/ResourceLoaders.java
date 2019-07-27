@@ -18,6 +18,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL10;
@@ -181,6 +185,53 @@ public class ResourceLoaders {
 
 		return new SoundBuffer.SoundBufferMeta(format, rawAudioBuffer, sampleRate,
 				() -> LibCStdlib.free(rawAudioBuffer));
+	};
+	
+	/**
+	 * A loader that produces a {@link com.accele.gage.sfx.SoundBuffer.SoundBufferMeta SoundBufferMeta} from a WAV file.
+	 */
+	public static final ResourceLoader<SoundBuffer.SoundBufferMeta> WAV_SOUND_LOADER = (src, args) -> {
+		try {
+			AudioInputStream ais = AudioSystem.getAudioInputStream(src.toPath().toFile());
+			AudioFormat sourceFormat = ais.getFormat();
+			
+			int format = -1;
+			int channels = sourceFormat.getChannels();
+			int sampleSizeBits = sourceFormat.getSampleSizeInBits();
+			
+			if (channels == 1 && sampleSizeBits == 8)
+				format = AL10.AL_FORMAT_MONO8;
+			else if (channels == 1 && sampleSizeBits == 16)
+				format = AL10.AL_FORMAT_MONO16;
+			else if (channels == 2 && sampleSizeBits == 8)
+				format = AL10.AL_FORMAT_STEREO8;
+			else if (channels == 2 && sampleSizeBits == 16)
+				format = AL10.AL_FORMAT_STEREO16;
+			else if (channels != 1 && channels != 2)
+				throw new GAGEException("Error loading WAV file " + src + ": GAGE only supports mono and stereo audio formats (channels found: " + channels + ").");
+			else
+				throw new GAGEException("Error loading WAV file " + src + ": GAGE only supports audio sample sizes of 8 or 16 bits (sample size found: " + sampleSizeBits + ").");
+			
+			byte[] array = new byte[channels * (int) ais.getFrameLength() * sampleSizeBits / 8];
+			int read = 0;
+			int total = 0;
+			while ((read = ais.read(array, total, array.length - total)) != -1 && total < array.length)
+				total += read;
+			
+			ByteBuffer data = ByteBuffer.allocateDirect(array.length).order(ByteOrder.nativeOrder());
+			ByteBuffer buf = ByteBuffer.wrap(array).order(ByteOrder.LITTLE_ENDIAN);
+			if (sampleSizeBits == 16) {
+				while (buf.hasRemaining())
+					data.putShort(buf.getShort());
+			} else {
+				while (buf.hasRemaining())
+					data.put(buf.get());
+			}
+			data.flip();
+			return new SoundBuffer.SoundBufferMeta(format, data.asShortBuffer(), (int) sourceFormat.getSampleRate(), () -> {});
+		} catch (UnsupportedAudioFileException | IOException e) {
+			throw new GAGEException(e);
+		}
 	};
 
 	/**

@@ -17,7 +17,7 @@ public class GameConfiguration {
 
 	private static final double DEFAULT_TICKS_PER_SECOND = 25.0;
 	
-	private final String version = "1.0.3";
+	private final String version = "1.1.3";
 	private int fps;
 	double ticksPerSecond;
 	
