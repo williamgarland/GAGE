@@ -153,6 +153,8 @@ public class GAGE {
 	private void run() {
 		GLFW.glfwSetTime(0);
 		
+		ticksPerSecond = config.ticksPerSecond;
+		
 		final double skipTicks = 1.0 / ticksPerSecond;
 		final double maxFrameskip = 5;
 		
@@ -163,6 +165,7 @@ public class GAGE {
 		
 		while (running) {
 			int loops = 0;
+			
 			while (getGameTime() > nextTick && loops < maxFrameskip) {
 				controlHandler.tick();
 				currentState.tick();
