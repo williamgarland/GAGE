@@ -36,11 +36,13 @@ public class ConfigurationReader {
 	}
 	
 	/**
-	 * Retrieves a list of user-defined properties, creates a new {@link com.accele.gage.config.Configuration Configuration} to store them in, and registers the {@code Configuration} in the configuration registry.
+	 * Retrieves a list of user-defined properties, creates a new {@link com.accele.gage.config.Configuration Configuration} to store them in, 
+	 * registers the {@code Configuration} in the configuration registry, and returns the {@code Configuration}.
 	 * <p>
 	 * The reader expects a minimum of four built-in properties to be defined: {@code __registryId__}, {@code __canSet__}, {@code __canAdd__}, and {@code __canRemove__}.
 	 * These properties are intrinsic to every {@code Configuration} instance and are required to create new {@code Configuration} instances.
 	 * </p>
+	 * @return the {@code Configuration} created from the imported properties
 	 * @throws GAGEException if the reader fails to read the properties from the external source
 	 * @see com.accele.gage.GAGE#getConfigurationRegistry() getConfigurationRegistry()
 	 */
