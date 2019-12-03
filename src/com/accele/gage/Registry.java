@@ -58,7 +58,7 @@ public class Registry<T extends Indexable> {
 	/**
 	 * Registers the specified {@code entry} to this {@code Registry}. An {@link java.lang.IllegalArgumentException IllegalArgumentException}
 	 * will be thrown if the registry already contains an entry with the same registry ID as the argument.
-	 * All {@link com.accele.gage.callbacks.RegistryCallback RegistryCallbacks} in the entry-add callback list will be invoked if the entry can be registered.
+	 * All {@link com.accele.gage.callbacks.RegistryCallback RegistryCallback}{@code s} in the entry-add callback list will be invoked if the entry can be registered.
 	 * 
 	 * @param entry the entry to add
 	 * @throws IllegalArgumentException if the registry already contains an entry with the same registry ID as the argument

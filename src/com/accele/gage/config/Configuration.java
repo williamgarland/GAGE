@@ -14,7 +14,7 @@ import com.accele.gage.Indexable;
  * Configurations can be set to be read-only or read-write, and can store any type of value. Configurations must be registered
  * with GAGE using the {@link com.accele.gage.Registry Registry} provided by {@link com.accele.gage.GAGE#getConfigurationRegistry getConfigurationRegistry()}
  * and must have unique registry IDs. Configurations can be read from externally using a {@link com.accele.gage.config.ConfigurationReader ConfigurationReader}
- * and can BE written to externally using a {@link com.accele.gage.config.ConfigurationWriter ConfigurationWriter}.
+ * and can be written to externally using a {@link com.accele.gage.config.ConfigurationWriter ConfigurationWriter}.
  * </p>
  * 
  * @author William Garland
@@ -182,12 +182,13 @@ public class Configuration implements Indexable {
 		return canRemoveProperties;
 	}
 	
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("rid=" + registryId + ", set=" + canSetProperties + ", add=" + canAddProperties + ", rem=" + canRemoveProperties + "\n");
-		properties.forEach((k, v) -> sb.append(k + "=" + v + "\n"));
-		return sb.toString();
+	/**
+	 * Returns an immutable view of all properties in the {@code Configuration}.
+	 * 
+	 * @return an unmodifiable {@link java.util.Map Map} of all properties in the {@code Configuration}
+	 */
+	public Map<String, Object> getProperties() {
+		return Collections.unmodifiableMap(properties);
 	}
 	
 }

@@ -1,39 +1,64 @@
 package com.accele.gage.config;
 
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import com.accele.gage.GAGE;
 import com.accele.gage.GAGEException;
-import com.accele.gage.ResourceLocation;
+import com.accele.gage.Resource;
 
+/**
+ * A simple {@link com.accele.gage.config.Configuration Configuration} reader that reads user-defined properties from an external source.
+ * <p>
+ * This reader will import a list of user-defined properties, create a new {@code Configuration} to store them in, and register the {@code Configuration} in the configuration registry.
+ * The reader expects a minimum of four built-in properties to be defined: {@code __registryId__}, {@code __canSet__}, {@code __canAdd__}, and {@code __canRemove__}.
+ * These properties are intrinsic to every {@code Configuration} instance and are required to create new {@code Configuration} instances, so there cannot be user-defined properties in
+ * any given {@code Configuration} with these identifiers.
+ * </p>
+ * 
+ * @author William Garland
+ * @version 1.0.0
+ * @since 1.0.0
+ */
 public class ConfigurationReader {
 
-	private ResourceLocation src;
+	private Resource<InputStream> src;
 	
-	public ConfigurationReader(ResourceLocation src) {
+	/**
+	 * Creates a new {@link com.accele.gage.config.ConfigurationReader ConfigurationReader} using the specified external source.
+	 * @param src the external source containing the configuration properties
+	 */
+	public ConfigurationReader(Resource<InputStream> src) {
 		this.src = src;
 	}
 	
+	/**
+	 * Retrieves a list of user-defined properties, creates a new {@link com.accele.gage.config.Configuration Configuration} to store them in, and registers the {@code Configuration} in the configuration registry.
+	 * <p>
+	 * The reader expects a minimum of four built-in properties to be defined: {@code __registryId__}, {@code __canSet__}, {@code __canAdd__}, and {@code __canRemove__}.
+	 * These properties are intrinsic to every {@code Configuration} instance and are required to create new {@code Configuration} instances.
+	 * </p>
+	 * @throws GAGEException if the reader fails to read the properties from the external source
+	 * @see com.accele.gage.GAGE#getConfigurationRegistry() getConfigurationRegistry()
+	 */
 	public Configuration read() throws GAGEException {
 		try {
-			List<String> lines = Files.readAllLines(src.toPath());
-			String meta = lines.get(0);
-			String[] metaParts = meta.trim().split(",");
-			Map<String, Object> properties = new HashMap<>();
-			for (String prop : lines.subList(1, lines.size())) {
-				String[] parts = prop.trim().split("=");
-				properties.put(parts[0].trim(), parts[1].trim());
-			}
-			Configuration config = new Configuration(metaParts[0].split("=")[1].trim(), properties, Boolean.parseBoolean(metaParts[1].split("=")[1].trim()), 
-					Boolean.parseBoolean(metaParts[2].split("=")[1].trim()), Boolean.parseBoolean(metaParts[3].split("=")[1].trim()));
+			Properties props = new Properties();
+			props.load(src.get());
+			Map<String, Object> configProps = new HashMap<>();
+			for (Object key : props.keySet())
+				configProps.put(key.toString(), props.getProperty(key.toString()));
+			Configuration config = new Configuration(configProps.get("__registryId__").toString(), configProps, 
+					Boolean.parseBoolean(configProps.get("__canSet__").toString()), 
+					Boolean.parseBoolean(configProps.get("__canAdd__").toString()), 
+					Boolean.parseBoolean(configProps.get("__canRemove__").toString()));
 			GAGE.getInstance().getConfigurationRegistry().register(config);
 			return config;
 		} catch (IOException e) {
-			throw new GAGEException(e.getMessage(), e);
+			throw new GAGEException(e);
 		}
 	}
 	

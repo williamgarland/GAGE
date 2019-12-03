@@ -66,6 +66,7 @@ import com.accele.gage.tile.TileMap;
 public class GAGE {
 	
 	private static GAGE instance;
+	private static int[] customWindowHints;
 	
 	private Window window;
 	private Graphics graphics;
@@ -98,7 +99,7 @@ public class GAGE {
 		
 		System.gc();
 		
-		this.window = new Window(width, height, title);
+		this.window = new Window(width, height, title, customWindowHints);
 		this.soundHandler = new SoundHandler();
 		this.modelRegistry = new Registry<>();
 		this.fontRegistry = new Registry<>();
@@ -216,7 +217,7 @@ public class GAGE {
 	 * so starting another instance of the engine in the same JVM instance must be done in the exact same way as it was initially created.
 	 * 
 	 * <p>
-	 * Note that although this method will stop the engine, it will not terminate immediately; the engine will begin its shutdown process at the end of the next game loop cycle.
+	 * Note that although this method will stop the engine, it will not terminate immediately; the engine will begin its shutdown process at the end of the current game loop cycle.
 	 * Once all necessary shutdown hooks have run, execution will return to the caller of the {@code start()} method. To stop the engine immediately, use {@link #forceQuit()}.
 	 * </p>
 	 */
@@ -531,6 +532,48 @@ public class GAGE {
 		if (instance == null)
 			throw new RuntimeException("GAGE has not been initialized.");
 		return instance;
+	}
+	
+	/**
+	 * Sets custom window hints to use when initializing the {@link com.accele.gage.gfx.Window Window}.
+	 * <p>
+	 * GAGE uses the programmable pipeline version of the LWJGL API, and as a result also uses the GLFW API as the windowing system, 
+	 * so all available window hints can be found in the {@link org.lwjgl.glfw.GLFW GLFW} class.
+	 * By default, GAGE uses a predefined set of window hints upon initializing the {@code Window} (see the {@link com.accele.gage.gfx.Window Window} class for details).
+	 * Calling this method will override these presets and instead use the specified custom hints.
+	 * This method must be called prior to calling the {@link #init(int, int, String)} method; calling it after GAGE has already been initialized will have no effect.
+	 * </p>
+	 * <p>
+	 * Note that this method expects hints to be provided in key-value order; the key for a given window hint is immediately followed by its matching value, 
+	 * which then is followed by subsequent key-value pairs.
+	 * </p>
+	 * <p>Example:</p>
+	 * <pre>
+	 * setCustomWindowHints(new int[] { GLFW_SAMPLES, 4, GLFW_CONTEXT_VERSION_MAJOR, 3, GLFW_CONTEXT_VERSION_MINOR, 2 });
+	 * </pre>
+	 * @param hints		the array of window hints to use when initializing the {@code Window} in key-value order
+	 * @see com.accele.gage.gfx.Window Window
+	 * @see org.lwjgl.glfw.GLFW GLFW
+	 */
+	public static void setCustomWindowHints(int[] hints) {
+		if (hints.length % 2 != 0)
+			throw new IllegalArgumentException("Invalid number of window hints; hints must be specified in key-value pairs.");
+		customWindowHints = hints;
+	}
+	
+	/**
+	 * Tells the engine to use the default window hints when initializing the {@link com.accele.gage.gfx.Window Window}.
+	 * <p>
+	 * GAGE uses a predefined set of window hints by default, so calling this method without also having called {@link #setCustomWindowHints(int[])} will have no effect.
+	 * Additionally, this method must be called prior to calling the {@link #init(int, int, String)} method; calling it after GAGE has already been initialized will have no effect.
+	 * </p>
+	 * <p>
+	 * For the list of default window hints used by GAGE, see the {@link com.accele.gage.gfx.Window Window} class.
+	 * </p>
+	 * @see com.accele.gage.gfx.Window Window
+	 */
+	public static void useDefaultWindowHints() {
+		customWindowHints = null;
 	}
 	
 }
