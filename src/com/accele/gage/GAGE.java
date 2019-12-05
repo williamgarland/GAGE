@@ -451,6 +451,19 @@ public class GAGE {
 	}
 	
 	/**
+	 * Returns the instance of {@link com.accele.gage.gfx.Graphics Graphics} used by GAGE.
+	 * <p>
+	 * This method is intended to yield the {@code Graphics} instance for retrieving and modifying graphical settings only; 
+	 * at no point should the draw functions be called outside of the {@link com.accele.gage.Renderable#render(Graphics, double) render(Graphics, double)} method.
+	 * </p>
+	 * 
+	 * @return	the {@code Graphics} used by the running instance of the engine
+	 */
+	public Graphics getGraphics() {
+		return graphics;
+	}
+	
+	/**
 	 * Adds the specified event to the event queue. All events in the event queue will run in an arbitrary order at the end of the next frame.
 	 * 
 	 * @param event	the event to add to the event queue
