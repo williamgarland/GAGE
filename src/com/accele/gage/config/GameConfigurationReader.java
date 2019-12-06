@@ -69,6 +69,8 @@ public class GameConfigurationReader {
 			+ " is too high for the current context (" + getVersionMajor(GAGE.getInstance().getConfig().getVersion()) + ")");
 		double ticksPerSecond = Double.parseDouble(getProperty(props, "ticksPerSecond"));
 		config.setTicksPerSecond(ticksPerSecond);
+		boolean doEntityCollision = Boolean.parseBoolean(getProperty(props, "doEntityCollision"));
+		config.setEntityCollision(doEntityCollision);
 	}
 	
 	private String getProperty(Properties props, String property) throws GAGEException {

@@ -20,9 +20,11 @@ public class GameConfiguration {
 	private final String version = "1.1.5";
 	private int fps;
 	double ticksPerSecond;
+	private boolean doEntityCollision;
 	
 	GameConfiguration() {
 		this.ticksPerSecond = DEFAULT_TICKS_PER_SECOND;
+		this.doEntityCollision = true;
 	}
 	
 	/**
@@ -76,6 +78,27 @@ public class GameConfiguration {
 	
 	void setFps(int fps) {
 		this.fps = fps;
+	}
+	
+	/**
+	 * Returns whether the {@link com.accele.gage.entity.EntityHandler EntityHandler} should perform entity collision detection.
+	 * 
+	 * @return whether the {@code EntityHandler} should perform entity collision detection
+	 */
+	public boolean doEntityCollision() {
+		return doEntityCollision;
+	}
+	
+	/**
+	 * Sets whether the {@link com.accele.gage.entity.EntityHandler EntityHandler} should perform entity collision detection.
+	 * <p>
+	 * Note that this method will not change the value until the end of the current game loop cycle.
+	 * </p>
+	 * 
+	 * @param doEntityCollision whether the {@code EntityHandler} should perform entity collision detection
+	 */
+	public void setEntityCollision(boolean doEntityCollision) {
+		GAGE.getInstance().deferEvent(gage -> this.doEntityCollision = doEntityCollision);
 	}
 	
 }
