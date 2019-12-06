@@ -31,15 +31,16 @@ public class EntityHandler implements Tickable, Renderable, Cleanable {
 	private GameConfiguration config;
 	
 	/**
-	 * Creates a new {@link com.accele.gage.entity.EntityHandler EntityHandler}.
+	 * Creates a new {@link com.accele.gage.entity.EntityHandler EntityHandler} with the specified {@link com.accele.gage.GameConfiguration GameConfiguration}.
 	 * <p>
 	 * This constructor should not be called by the user; the {@link com.accele.gage.GAGE GAGE} class already contains an instance of this class.
 	 * </p>
+	 * @param config the {@code GameConfiguration} to use in the {@code EntityHandler}
 	 * @see com.accele.gage.GAGE#getEntityHandler() getEntityHandler()
 	 */
-	public EntityHandler() {
+	public EntityHandler(GameConfiguration config) {
 		this.entities = new ArrayList<>();
-		this.config = GAGE.getInstance().getConfig();
+		this.config = config;
 	}
 	
 	public void tick() {

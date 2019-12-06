@@ -117,7 +117,7 @@ public class GAGE {
 		this.soundBufferRegistry = new Registry<>();
 		this.soundSourceRegistry = new Registry<>();
 		this.controlHandler = new ControlHandler(controlListenerRegistry, keyListenerRegistry, mouseListenerRegistry, window.getPointer());
-		this.entityHandler = new EntityHandler();
+		this.entityHandler = new EntityHandler(config);
 		this.deferredEvents = new ArrayDeque<>();
 		this.rand = new Random();
 		this.logger = new Logger(System.out, "[" + this.getClass().getCanonicalName() + "]");
