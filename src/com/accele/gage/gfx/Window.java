@@ -34,6 +34,7 @@ import com.accele.gage.GAGE;
  * <p>
  * To specify custom window hints, call the {@link com.accele.gage.GAGE#setCustomWindowHints(int[]) setCustomWindowHints(int[])} method prior to initializing the engine.
  * </p>
+ * 
  * @author William Garland
  * @version 1.0.0
  * @since 1.0.0

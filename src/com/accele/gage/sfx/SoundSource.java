@@ -22,6 +22,22 @@ public class SoundSource implements Indexable, Cleanable {
 		buffer.setLinkedSourceId(sourceId);
 	}
 	
+	public float getVolume() {
+		return AL10.alGetSourcef(sourceId, AL10.AL_GAIN);
+	}
+	
+	public void setVolume(float volume) {
+		AL10.alSourcef(sourceId, AL10.AL_GAIN, volume);
+	}
+	
+	public float getPitch() {
+		return AL10.alGetSourcef(sourceId, AL10.AL_PITCH);
+	}
+	
+	public void setPitch(float pitch) {
+		AL10.alSourcef(sourceId, AL10.AL_PITCH, pitch);
+	}
+	
 	public void loop() {
 		loop(1, 1);
 	}
@@ -32,8 +48,9 @@ public class SoundSource implements Indexable, Cleanable {
 	
 	public void loop(float volume, float pitch) {
 		AL10.alSourcei(sourceId, AL10.AL_LOOPING, AL10.AL_TRUE);
-		AL10.alSourcef(sourceId, AL10.AL_GAIN, volume);
-		AL10.alSourcef(sourceId, AL10.AL_PITCH, pitch);
+		AL10.alSourcef(sourceId, AL10.AL_GAIN, GAGE.getInstance().getConfig().isMasterVolumeMuted() ? 0 
+				: Math.min(GAGE.getInstance().getConfig().getMasterVolume(), volume));
+		AL10.alSourcef(sourceId, AL10.AL_PITCH, Math.min(GAGE.getInstance().getConfig().getMasterPitch(), pitch));
 		AL10.alSourcePlay(sourceId);
 	}
 	
@@ -47,8 +64,9 @@ public class SoundSource implements Indexable, Cleanable {
 	
 	public void play(float volume, float pitch) {
 		AL10.alSourcei(sourceId, AL10.AL_LOOPING, AL10.AL_FALSE);
-		AL10.alSourcef(sourceId, AL10.AL_GAIN, volume);
-		AL10.alSourcef(sourceId, AL10.AL_PITCH, pitch);
+		AL10.alSourcef(sourceId, AL10.AL_GAIN, GAGE.getInstance().getConfig().isMasterVolumeMuted() ? 0 
+				: Math.min(GAGE.getInstance().getConfig().getMasterVolume(), volume));
+		AL10.alSourcef(sourceId, AL10.AL_PITCH, Math.min(GAGE.getInstance().getConfig().getMasterPitch(), pitch));
 		AL10.alSourcePlay(sourceId);
 	}
 	

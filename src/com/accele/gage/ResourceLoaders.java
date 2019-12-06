@@ -102,7 +102,8 @@ public class ResourceLoaders {
 		ByteBuffer dataBuffer = b.slice();
 		dataBuffer.limit(imageSize);
 
-		return new TextureMeta(dataBuffer, width, height, GL12.GL_BGR);
+		return new TextureMeta(dataBuffer, width, height, GL12.GL_BGR, 
+				GAGE.getInstance().getConfig().getDefaultTextureParameters(), GAGE.getInstance().getConfig().shouldGenerateTextureMipmaps());
 	};
 
 	/**
@@ -145,7 +146,8 @@ public class ResourceLoaders {
 
 		buffer.flip();
 
-		return new TextureMeta(buffer, width, height, GL11.GL_RGBA);
+		return new TextureMeta(buffer, width, height, GL11.GL_RGBA,
+				GAGE.getInstance().getConfig().getDefaultTextureParameters(), GAGE.getInstance().getConfig().shouldGenerateTextureMipmaps());
 	};
 
 	/**
@@ -489,7 +491,8 @@ public class ResourceLoaders {
 		}
 
 		return new Texture(":internal:", new Resource<TextureMeta>(
-				(src, args) -> new TextureMeta(imageToByteBuffer(imgTemp), textureWidth, textureHeight, GL11.GL_RGBA),
+				(src, args) -> new TextureMeta(imageToByteBuffer(imgTemp), textureWidth, textureHeight, GL11.GL_RGBA,
+						GAGE.getInstance().getConfig().getDefaultTextureParameters(), GAGE.getInstance().getConfig().shouldGenerateTextureMipmaps()),
 				null));
 	}
 

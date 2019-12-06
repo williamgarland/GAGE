@@ -71,6 +71,16 @@ public class GameConfigurationReader {
 		config.setTicksPerSecond(ticksPerSecond);
 		boolean doEntityCollision = Boolean.parseBoolean(getProperty(props, "doEntityCollision"));
 		config.setEntityCollision(doEntityCollision);
+		float masterVolume = Float.parseFloat(getProperty(props, "masterVolume"));
+		config.setMasterVolume(masterVolume);
+		float masterPitch = Float.parseFloat(getProperty(props, "masterPitch"));
+		config.setMasterPitch(masterPitch);
+		boolean masterVolumeMuted = Boolean.parseBoolean(getProperty(props, "masterVolumeMuted"));
+		config.setMasterVolumeMuted(masterVolumeMuted);
+		int[] defaultTextureParameters = getIntArray(getProperty(props, "defaultTextureParameters"));
+		config.setDefaultTextureParameters(defaultTextureParameters);
+		boolean generateTextureMipmaps = Boolean.parseBoolean(getProperty(props, "generateTextureMipmaps"));
+		config.setShouldGenerateTextureMipmaps(generateTextureMipmaps);
 	}
 	
 	private String getProperty(Properties props, String property) throws GAGEException {
@@ -82,6 +92,14 @@ public class GameConfigurationReader {
 	
 	private int getVersionMajor(String version) {
 		return Integer.parseInt(version.split("\\.")[0].trim());
+	}
+	
+	private int[] getIntArray(String str) {
+		String[] parts = str.split(",");
+		int[] result = new int[parts.length];
+		for (int i = 0; i < result.length; i++)
+			result[i] = Integer.parseInt(parts[i]);
+		return result;
 	}
 	
 }

@@ -8,12 +8,16 @@ public class TextureMeta {
 	private int width;
 	private int height;
 	private int format;
+	private int[] parameters;
+	private boolean generateMipmaps;
 	
-	public TextureMeta(ByteBuffer pixels, int width, int height, int format) {
+	public TextureMeta(ByteBuffer pixels, int width, int height, int format, int[] parameters, boolean generateMipmaps) {
 		this.pixels = pixels;
 		this.width = width;
 		this.height = height;
 		this.format = format;
+		this.parameters = parameters;
+		this.generateMipmaps = generateMipmaps;
 	}
 	
 	public ByteBuffer getPixels() {
@@ -30,6 +34,14 @@ public class TextureMeta {
 	
 	public int getFormat() {
 		return format;
+	}
+	
+	public int[] getParameters() {
+		return parameters;
+	}
+	
+	public boolean shouldGenerateMipmaps() {
+		return generateMipmaps;
 	}
 	
 }

@@ -32,7 +32,7 @@ public class Configuration implements Indexable {
 	/**
 	 * Constructs a read-write {@code Configuration} with the specified {@code registryId}.
 	 * 
-	 * @param registryId	the unique ID to use in the {@link com.accele.gage.Registry Registry}
+	 * @param registryId	the unique ID to use in the configuration {@link com.accele.gage.Registry Registry}
 	 */
 	public Configuration(String registryId) {
 		this(registryId, new HashMap<>(), true, true, true);
@@ -41,7 +41,7 @@ public class Configuration implements Indexable {
 	/**
 	 * Constructs a {@code Configuration} with the specified {@code registryId} and initial properties with the option of being read-only.
 	 * 
-	 * @param registryId	the unique ID to use in the {@link com.accele.gage.Registry Registry}
+	 * @param registryId	the unique ID to use in the configuration {@link com.accele.gage.Registry Registry}
 	 * @param properties	the initial properties to store in the {@code Configuration}
 	 * @param readOnly		whether this {@code Configuration} should be read-only
 	 */
@@ -52,7 +52,7 @@ public class Configuration implements Indexable {
 	/**
 	 * Constructs a {@code Configuration} with the specified {@code registryId} and initial properties with the option of specific actions being read-only.
 	 * 
-	 * @param registryId	the unique ID to use in the {@link com.accele.gage.Registry Registry}
+	 * @param registryId	the unique ID to use in the configuration {@link com.accele.gage.Registry Registry}
 	 * @param properties	the initial properties to store in the {@code Configuration}
 	 * @param canSetProperties	whether this {@code Configuration} should allow properties to be changed
 	 * @param canAddProperties	whether this {@code Configuration} should allow more properties to be added
