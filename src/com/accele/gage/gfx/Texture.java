@@ -113,6 +113,7 @@ public class Texture implements Indexable, Cleanable {
 	 * @param y the upper-left y-coordinate on the original image to use in the sub-texture
 	 * @param width the width of the view on the original image to use in the sub-texture
 	 * @param height the height of the view on the original image to use in the sub-texture
+	 * @return a view of this {@code Texture} with a new {@code registryId} and within the specified dimensions on the original texture
 	 */
 	public Texture subRegion(String registryId, float x, float y, float width, float height) {
 		return new Texture(registryId, textureId, totalWidth, totalHeight, x, y, width, height);
@@ -131,6 +132,7 @@ public class Texture implements Indexable, Cleanable {
 	 * @param y the upper-left y-coordinate on the original image to use in the sub-texture
 	 * @param width the width of the view on the original image to use in the sub-texture
 	 * @param height the height of the view on the original image to use in the sub-texture
+	 * @return a view of this {@code Texture} with a new {@code registryId} and within the specified dimensions on the original texture
 	 */
 	public Texture subRegion(float x, float y, float width, float height) {
 		return subRegion(registryId + "_sub_region_" + x + "_" + y + "_" + width + "_" + height, x, y, width, height);

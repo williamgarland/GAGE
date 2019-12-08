@@ -228,6 +228,7 @@ public class GameConfiguration {
 	 * GAGE uses the following default values:
 	 * </p>
 	 * <table>
+	 * <caption>Default Texture Parameters</caption>
 	 * <tr>
 	 * <th>Parameter</th>
 	 * <th>Value</th>
@@ -249,6 +250,7 @@ public class GameConfiguration {
 	 * GAGE uses the following default values:
 	 * </p>
 	 * <table>
+	 * <caption>Default Repeating Texture Parameters</caption>
 	 * <tr>
 	 * <th>Parameter</th>
 	 * <th>Value</th>
