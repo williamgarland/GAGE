@@ -197,13 +197,22 @@ public class GAGE {
 	
 	private void clean() {
 		currentState.exit();
+		entityHandler.clean();
 		graphics.clean();
+		animationRegistry.clean();
+		configurationRegistry.clean();
+		controlListenerRegistry.clean();
+		fontRegistry.clean();
+		keyListenerRegistry.clean();
+		modelRegistry.clean();
+		mouseListenerRegistry.clean();
+		shaderRegistry.clean();
+		soundBufferRegistry.clean();
+		soundSourceRegistry.clean();
+		stateRegistry.clean();
+		textureRegistry.clean();
+		tileMapRegistry.clean();
 		controlHandler.clean();
-		tileMapRegistry.getEntries().forEach(e -> e.clean());
-		stateRegistry.getEntries().forEach(e -> e.clean());
-		textureRegistry.getEntries().forEach(e -> e.clean());
-		fontRegistry.getEntries().forEach(e -> e.clean());
-		shaderRegistry.getEntries().forEach(e -> e.clean());
 		window.clean();
 		soundHandler.clean();
 		

@@ -25,7 +25,7 @@ import com.accele.gage.callbacks.RegistryCallback;
  * @see com.accele.gage.GAGE GAGE
  * @see com.accele.gage.Indexable Indexable
  */
-public class Registry<T extends Indexable> {
+public class Registry<T extends Indexable> implements Cleanable {
 
 	private Map<String, T> entries;
 	private List<RegistryCallback<T>> entryAddCallbacks;
@@ -166,6 +166,11 @@ public class Registry<T extends Indexable> {
 	 */
 	public Collection<T> getEntries() {
 		return Collections.unmodifiableCollection(entries.values());
+	}
+	
+	@Override
+	public void clean() {
+		entries.values().forEach(e -> { if (e instanceof Cleanable) ((Cleanable) e).clean(); });
 	}
 	
 }
