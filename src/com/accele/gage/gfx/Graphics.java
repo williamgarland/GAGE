@@ -31,7 +31,7 @@ public class Graphics implements Cleanable {
 	public Graphics(Registry<Model> modelRegistry, Registry<Font> fontRegistry) {
 		this.color = Color.WHITE;
 		this.font = new Font("gage.font.default", new Resource<>(ResourceLoaders.INTERNAL_FONT_LOADER, 
-				new ResourceLocation(""), new java.awt.Font("Arial", 0, 30), false));
+				new ResourceLocation(""), new java.awt.Font("Arial", 0, 30), true));
 		fontRegistry.register(font);
 		this.projectionMatrix = new Matrix4f().setOrtho2D(-1, 1, -1, 1);
 		this.rect = new Model("acl.rect", new Resource<>((src, args) -> new VBO[] {
