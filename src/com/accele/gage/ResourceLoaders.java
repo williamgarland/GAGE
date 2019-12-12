@@ -515,7 +515,8 @@ public class ResourceLoaders {
 
 		return new Texture(":internal:", new Resource<TextureMeta>(
 				(src, args) -> new TextureMeta(imageToByteBuffer(imgTemp), textureWidth, textureHeight, GL11.GL_RGBA,
-						GAGE.getInstance().getConfig().getDefaultTextureParameters(), GAGE.getInstance().getConfig().shouldGenerateTextureMipmaps()),
+						// This requires direct access to the GAGE instance because the default font is created during initialization
+						GAGE.instance.getConfig().getDefaultTextureParameters(), GAGE.instance.getConfig().shouldGenerateTextureMipmaps()),
 				null));
 	}
 
