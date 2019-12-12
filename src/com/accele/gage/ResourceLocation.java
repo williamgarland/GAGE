@@ -149,7 +149,7 @@ public class ResourceLocation {
 	 */
 	public InputStream getInputStream() throws GAGEException {
 		try {
-			return inputStream == null ? new FileInputStream(location + name) : inputStream;			
+			return inputStream == null ? new FileInputStream(toString()) : inputStream;			
 		} catch (FileNotFoundException e) {
 			throw new GAGEException(e);
 		}
