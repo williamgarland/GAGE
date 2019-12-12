@@ -65,7 +65,7 @@ import com.accele.gage.tile.TileMap;
  */
 public class GAGE {
 	
-	static GAGE instance;
+	private static GAGE instance;
 	private static int[] customWindowHints;
 	
 	private Window window;
