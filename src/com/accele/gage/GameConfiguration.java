@@ -48,7 +48,7 @@ public class GameConfiguration {
 		this.masterPitch = 1;
 		this.masterVolumeMuted = false;
 		this.generateTextureMipmaps = true;
-		useBuiltinDefaultTextureParameters();
+		useDefaultTextureParameters();
 	}
 	
 	/**
@@ -285,8 +285,8 @@ public class GameConfiguration {
 	}
 	
 	/**
-	 * Specifies that the engine should use the built-in texture parameters as the 
-	 * default texture parameters to use when creating new instances of {@link com.accele.gage.gfx.Texture Texture}.
+	 * Specifies that the engine should use the default texture parameters 
+	 * when creating new instances of {@link com.accele.gage.gfx.Texture Texture}.
 	 * <p>
 	 * GAGE uses the following default values:
 	 * </p>
@@ -302,7 +302,7 @@ public class GameConfiguration {
 	 * <tr><td>GL_TEXTURE_MIN_FILTER</td><td>GL_LINEAR_MIPMAP_LINEAR</td></tr>
 	 * </table>
 	 */
-	public void useBuiltinDefaultTextureParameters() {
+	public void useDefaultTextureParameters() {
 		this.textureWrapSParameter = DEFAULT_TEXTURE_WRAP_S_PARAMETER;
 		this.textureWrapTParameter = DEFAULT_TEXTURE_WRAP_T_PARAMETER;
 		this.textureMinFilterParameter = DEFAULT_TEXTURE_MIN_FILTER_PARAMETER;
@@ -310,8 +310,8 @@ public class GameConfiguration {
 	}
 	
 	/**
-	 * Specifies that the engine should use the built-in repeating texture parameters as the 
-	 * default texture parameters to use when creating new instances of {@link com.accele.gage.gfx.Texture Texture}.
+	 * Specifies that the engine should use the default repeating texture parameters 
+	 * when creating new instances of {@link com.accele.gage.gfx.Texture Texture}.
 	 * <p>
 	 * GAGE uses the following default values:
 	 * </p>
@@ -327,7 +327,7 @@ public class GameConfiguration {
 	 * <tr><td>GL_TEXTURE_MIN_FILTER</td><td>GL_LINEAR_MIPMAP_LINEAR</td></tr>
 	 * </table>
 	 */
-	public void useBuiltinDefaultRepeatingTextureParameters() {
+	public void useDefaultRepeatingTextureParameters() {
 		this.textureWrapSParameter = DEFAULT_REPEATING_TEXTURE_WRAP_S_PARAMETER;
 		this.textureWrapTParameter = DEFAULT_REPEATING_TEXTURE_WRAP_T_PARAMETER;
 		this.textureMinFilterParameter = DEFAULT_TEXTURE_MIN_FILTER_PARAMETER;
