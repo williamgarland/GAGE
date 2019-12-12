@@ -106,7 +106,7 @@ public class ResourceLoaders {
 		dataBuffer.limit(imageSize);
 
 		return new TextureMeta(dataBuffer, width, height, GL12.GL_BGR, 
-				GAGE.getInstance().getConfig().getDefaultTextureParameters(), GAGE.getInstance().getConfig().shouldGenerateTextureMipmaps());
+				GAGE.getInstance().getConfig().getTextureParameters(), GAGE.getInstance().getConfig().shouldGenerateTextureMipmaps());
 	};
 
 	/**
@@ -150,7 +150,7 @@ public class ResourceLoaders {
 		buffer.flip();
 
 		return new TextureMeta(buffer, width, height, GL11.GL_RGBA,
-				GAGE.getInstance().getConfig().getDefaultTextureParameters(), GAGE.getInstance().getConfig().shouldGenerateTextureMipmaps());
+				GAGE.getInstance().getConfig().getTextureParameters(), GAGE.getInstance().getConfig().shouldGenerateTextureMipmaps());
 	};
 
 	/**
@@ -513,9 +513,20 @@ public class ResourceLoaders {
 			chars[i] = meta;
 		}
 
-		return new Texture(":internal:", new Resource<TextureMeta>(
-				(src, args) -> new TextureMeta(imageToByteBuffer(imgTemp), textureWidth, textureHeight, GL11.GL_RGBA,
-						GameConfiguration.BUILTIN_DEFAULT_TEXTURE_PARAMETERS, true), null));
+		if (GAGE.isInitialized())
+			return new Texture(":internal:", new Resource<TextureMeta>(
+					(src, args) -> new TextureMeta(imageToByteBuffer(imgTemp), textureWidth, textureHeight, GL11.GL_RGBA,
+							GAGE.getInstance().getConfig().getTextureParameters(), true), null));
+		else {
+			return new Texture(":internal:", new Resource<TextureMeta>(
+					(src, args) -> new TextureMeta(imageToByteBuffer(imgTemp), textureWidth, textureHeight, GL11.GL_RGBA,
+							new int[] {
+									GL11.GL_TEXTURE_WRAP_S, GameConfiguration.DEFAULT_TEXTURE_WRAP_S_PARAMETER.getNativeValue(),
+									GL11.GL_TEXTURE_WRAP_T, GameConfiguration.DEFAULT_TEXTURE_WRAP_T_PARAMETER.getNativeValue(),
+									GL11.GL_TEXTURE_MIN_FILTER, GameConfiguration.DEFAULT_TEXTURE_MIN_FILTER_PARAMETER.getNativeValue(),
+									GL11.GL_TEXTURE_MAG_FILTER, GameConfiguration.DEFAULT_TEXTURE_MAG_FILTER_PARAMETER.getNativeValue()	
+							}, true), null));
+		}
 	}
 
 	private static BufferedImage createCharImage(java.awt.Font internalFont, char c, boolean antialias) {

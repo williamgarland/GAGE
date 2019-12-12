@@ -557,6 +557,15 @@ public class GAGE {
 	}
 	
 	/**
+	 * Returns whether GAGE has already been initialized.
+	 * 
+	 * @return whether GAGE has already been initialized
+	 */
+	public static boolean isInitialized() {
+		return instance != null;
+	}
+	
+	/**
 	 * Sets custom window hints to use when initializing the {@link com.accele.gage.gfx.Window Window}.
 	 * <p>
 	 * GAGE uses the programmable pipeline version of the LWJGL API, and as a result also uses the GLFW API as the windowing system, 

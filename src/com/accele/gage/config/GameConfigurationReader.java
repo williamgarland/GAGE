@@ -8,6 +8,8 @@ import com.accele.gage.GAGE;
 import com.accele.gage.GAGEException;
 import com.accele.gage.GameConfiguration;
 import com.accele.gage.Resource;
+import com.accele.gage.gfx.TextureFilterParameter;
+import com.accele.gage.gfx.TextureWrapParameter;
 
 /**
  * A simple {@link com.accele.gage.GameConfiguration GameConfiguration} reader that reads engine properties from an external source.
@@ -77,8 +79,14 @@ public class GameConfigurationReader {
 		config.setMasterPitch(masterPitch);
 		boolean masterVolumeMuted = Boolean.parseBoolean(getProperty(props, "masterVolumeMuted"));
 		config.setMasterVolumeMuted(masterVolumeMuted);
-		int[] defaultTextureParameters = getIntArray(getProperty(props, "defaultTextureParameters"));
-		config.setDefaultTextureParameters(defaultTextureParameters);
+		TextureWrapParameter textureWrapSParameter = TextureWrapParameter.fromNativeValue(Integer.parseInt(getProperty(props, "textureWrapSParameter")));
+		config.setTextureWrapSParameter(textureWrapSParameter);
+		TextureWrapParameter textureWrapTParameter = TextureWrapParameter.fromNativeValue(Integer.parseInt(getProperty(props, "textureWrapTParameter")));
+		config.setTextureWrapTParameter(textureWrapTParameter);
+		TextureFilterParameter textureMinFilterParameter = TextureFilterParameter.fromNativeValue(Integer.parseInt(getProperty(props, "textureMinFilterParameter")));
+		config.setTextureMinFilterParameter(textureMinFilterParameter);
+		TextureFilterParameter textureMagFilterParameter = TextureFilterParameter.fromNativeValue(Integer.parseInt(getProperty(props, "textureMagFilterParameter")));
+		config.setTextureMagFilterParameter(textureMagFilterParameter);
 		boolean generateTextureMipmaps = Boolean.parseBoolean(getProperty(props, "generateTextureMipmaps"));
 		config.setShouldGenerateTextureMipmaps(generateTextureMipmaps);
 	}
@@ -92,14 +100,6 @@ public class GameConfigurationReader {
 	
 	private int getVersionMajor(String version) {
 		return Integer.parseInt(version.split("\\.")[0].trim());
-	}
-	
-	private int[] getIntArray(String str) {
-		String[] parts = str.split(",");
-		int[] result = new int[parts.length];
-		for (int i = 0; i < result.length; i++)
-			result[i] = Integer.parseInt(parts[i]);
-		return result;
 	}
 	
 }

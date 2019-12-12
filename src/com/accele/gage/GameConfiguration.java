@@ -1,7 +1,9 @@
 package com.accele.gage;
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
+
+import com.accele.gage.gfx.TextureFilterParameter;
+import com.accele.gage.gfx.TextureWrapParameter;
 
 /**
  * The primary settings for the engine.
@@ -19,18 +21,12 @@ import org.lwjgl.opengl.GL12;
 public class GameConfiguration {
 
 	private static final double DEFAULT_TICKS_PER_SECOND = 25.0;
-	public static final int[] BUILTIN_DEFAULT_TEXTURE_PARAMETERS = new int[] {
-			GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE,
-			GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE,
-			GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR,
-			GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR
-	};
-	public static final int[] BUILTIN_DEFAULT_REPEATING_TEXTURE_PARAMETERS = new int[] {
-			GL11.GL_TEXTURE_WRAP_S, GL12.GL_REPEAT,
-			GL11.GL_TEXTURE_WRAP_T, GL12.GL_REPEAT,
-			GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR,
-			GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR
-	};
+	public static final TextureWrapParameter DEFAULT_TEXTURE_WRAP_S_PARAMETER = TextureWrapParameter.CLAMP_TO_EDGE;
+	public static final TextureWrapParameter DEFAULT_TEXTURE_WRAP_T_PARAMETER = TextureWrapParameter.CLAMP_TO_EDGE;
+	public static final TextureWrapParameter DEFAULT_REPEATING_TEXTURE_WRAP_S_PARAMETER = TextureWrapParameter.REPEAT;
+	public static final TextureWrapParameter DEFAULT_REPEATING_TEXTURE_WRAP_T_PARAMETER = TextureWrapParameter.REPEAT;
+	public static final TextureFilterParameter DEFAULT_TEXTURE_MAG_FILTER_PARAMETER = TextureFilterParameter.LINEAR;
+	public static final TextureFilterParameter DEFAULT_TEXTURE_MIN_FILTER_PARAMETER = TextureFilterParameter.LINEAR_MIPMAP_LINEAR;
 	
 	private final String version = "1.1.5";
 	private int fps;
@@ -39,7 +35,10 @@ public class GameConfiguration {
 	private float masterVolume;
 	private float masterPitch;
 	private boolean masterVolumeMuted;
-	private int[] defaultTextureParameters;
+	private TextureWrapParameter textureWrapSParameter;
+	private TextureWrapParameter textureWrapTParameter;
+	private TextureFilterParameter textureMagFilterParameter;
+	private TextureFilterParameter textureMinFilterParameter;
 	private boolean generateTextureMipmaps;
 	
 	GameConfiguration() {
@@ -48,8 +47,8 @@ public class GameConfiguration {
 		this.masterVolume = 1;
 		this.masterPitch = 1;
 		this.masterVolumeMuted = false;
-		this.defaultTextureParameters = BUILTIN_DEFAULT_TEXTURE_PARAMETERS;
 		this.generateTextureMipmaps = true;
+		useBuiltinDefaultTextureParameters();
 	}
 	
 	/**
@@ -184,25 +183,89 @@ public class GameConfiguration {
 	}
 	
 	/**
-	 * Returns the default texture parameters used for generating new instances of {@link com.accele.gage.gfx.Texture Texture}.
-	 * <p>
-	 * By default, this method will return the built-in default texture parameters as if {@link #useBuiltinDefaultTextureParameters()} was invoked.
-	 * </p>
-	 * @return the default texture parameters used for generating new instances of {@code Texture}
+	 * Returns the S wrap parameter the engine should use when generating new instances of {@link com.accele.gage.gfx.Texture Texture}.
+	 * 
+	 * @return the S wrap parameter to use for {@code Texture} generation
 	 */
-	public int[] getDefaultTextureParameters() {
-		return defaultTextureParameters;
+	public TextureWrapParameter getTextureWrapSParameter() {
+		return textureWrapSParameter;
 	}
 	
 	/**
-	 * Sets the default texture parameters to use when generating new instances of {@link com.accele.gage.gfx.Texture Texture}.
-	 * <p>
-	 * Texture parameters should be specified in key-value pair order, where each element is a key followed by its value and then any subsequent key-value pairs proceeding them.
-	 * </p>
-	 * @param defaultTextureParameters the default texture parameters to use when generating new instances of {@code Texture}
+	 * Returns the T wrap parameter the engine should use when generating new instances of {@link com.accele.gage.gfx.Texture Texture}.
+	 * 
+	 * @return the T wrap parameter to use for {@code Texture} generation
 	 */
-	public void setDefaultTextureParameters(int[] defaultTextureParameters) {
-		this.defaultTextureParameters = defaultTextureParameters;
+	public TextureWrapParameter getTextureWrapTParameter() {
+		return textureWrapTParameter;
+	}
+	
+	/**
+	 * Returns the minifying filter parameter the engine should use when generating new instances of {@link com.accele.gage.gfx.Texture Texture}.
+	 * 
+	 * @return the minifying filter parameter to use for {@code Texture} generation
+	 */
+	public TextureFilterParameter getTextureMinFilterParameter() {
+		return textureMinFilterParameter;
+	}
+	
+	/**
+	 * Returns the magnifying filter parameter the engine should use when generating new instances of {@link com.accele.gage.gfx.Texture Texture}.
+	 * 
+	 * @return the magnifying filter parameter to use for {@code Texture} generation
+	 */
+	public TextureFilterParameter getTextureMagFilterParameter() {
+		return textureMagFilterParameter;
+	}
+	
+	/**
+	 * A convenience method for returning an array of all specified {@link com.accele.gage.gfx.Texture Texture} parameters in key-value order.
+	 * 
+	 * @return an array of {@code Texture} parameters in key-value order
+	 */
+	public int[] getTextureParameters() {
+		return new int[] {
+			GL11.GL_TEXTURE_WRAP_S, textureWrapSParameter.getNativeValue(),
+			GL11.GL_TEXTURE_WRAP_T, textureWrapTParameter.getNativeValue(),
+			GL11.GL_TEXTURE_MIN_FILTER, textureMinFilterParameter.getNativeValue(),
+			GL11.GL_TEXTURE_MAG_FILTER, textureMagFilterParameter.getNativeValue(),
+		};
+	}
+	
+	/**
+	 * Sets the S wrap parameter the engine should use when generating new instances of {@link com.accele.gage.gfx.Texture Texture}.
+	 * 
+	 * @param textureMagFilterParameter the S wrap parameter to use for {@code Texture} generation
+	 */
+	public void setTextureWrapSParameter(TextureWrapParameter textureWrapSParameter) {
+		this.textureWrapSParameter = textureWrapSParameter;
+	}
+	
+	/**
+	 * Sets the T wrap parameter the engine should use when generating new instances of {@link com.accele.gage.gfx.Texture Texture}.
+	 * 
+	 * @param textureMagFilterParameter the T wrap parameter to use for {@code Texture} generation
+	 */
+	public void setTextureWrapTParameter(TextureWrapParameter textureWrapTParameter) {
+		this.textureWrapTParameter = textureWrapTParameter;
+	}
+	
+	/**
+	 * Sets the minifying filter parameter the engine should use when generating new instances of {@link com.accele.gage.gfx.Texture Texture}.
+	 * 
+	 * @param textureMagFilterParameter the minifying filter parameter to use for {@code Texture} generation
+	 */
+	public void setTextureMinFilterParameter(TextureFilterParameter textureMinFilterParameter) {
+		this.textureMinFilterParameter = textureMinFilterParameter;
+	}
+	
+	/**
+	 * Sets the magnifying filter parameter the engine should use when generating new instances of {@link com.accele.gage.gfx.Texture Texture}.
+	 * 
+	 * @param textureMagFilterParameter the magnifying filter parameter to use for {@code Texture} generation
+	 */
+	public void setTextureMagFilterParameter(TextureFilterParameter textureMagFilterParameter) {
+		this.textureMagFilterParameter = textureMagFilterParameter;
 	}
 	
 	/**
@@ -240,7 +303,10 @@ public class GameConfiguration {
 	 * </table>
 	 */
 	public void useBuiltinDefaultTextureParameters() {
-		this.defaultTextureParameters = BUILTIN_DEFAULT_TEXTURE_PARAMETERS;
+		this.textureWrapSParameter = DEFAULT_TEXTURE_WRAP_S_PARAMETER;
+		this.textureWrapSParameter = DEFAULT_TEXTURE_WRAP_T_PARAMETER;
+		this.textureMinFilterParameter = DEFAULT_TEXTURE_MIN_FILTER_PARAMETER;
+		this.textureMagFilterParameter = DEFAULT_TEXTURE_MAG_FILTER_PARAMETER;
 	}
 	
 	/**
@@ -262,7 +328,10 @@ public class GameConfiguration {
 	 * </table>
 	 */
 	public void useBuiltinDefaultRepeatingTextureParameters() {
-		this.defaultTextureParameters = BUILTIN_DEFAULT_REPEATING_TEXTURE_PARAMETERS;
+		this.textureWrapSParameter = DEFAULT_REPEATING_TEXTURE_WRAP_S_PARAMETER;
+		this.textureWrapSParameter = DEFAULT_REPEATING_TEXTURE_WRAP_T_PARAMETER;
+		this.textureMinFilterParameter = DEFAULT_TEXTURE_MIN_FILTER_PARAMETER;
+		this.textureMagFilterParameter = DEFAULT_TEXTURE_MAG_FILTER_PARAMETER;
 	}
 	
 }
