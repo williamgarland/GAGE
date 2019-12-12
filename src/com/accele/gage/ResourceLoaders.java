@@ -5,17 +5,19 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.nio.channels.SeekableByteChannel;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioFormat;
@@ -58,12 +60,13 @@ public class ResourceLoaders {
 		ByteBuffer b = null;
 
 		try {
-			SeekableByteChannel c = Files.newByteChannel(src.toPath());
-			b = BufferUtils.createByteBuffer((int) c.size());
-			while (c.read(b) > 0)
-				;
+			InputStream in = src.getInputStream();
+			byte[] bytes = in.readAllBytes();
+			b = BufferUtils.createByteBuffer((int) bytes.length);
+			for (int i = 0; i < bytes.length; i++)
+				b.put(bytes[i]);
 			b.flip();
-			c.close();
+			in.close();
 		} catch (IOException e) {
 			throw new GAGEException(e);
 		}
@@ -112,7 +115,7 @@ public class ResourceLoaders {
 	public static final ResourceLoader<TextureMeta> PNG_TEXTURE_LOADER = (src, args) -> {
 		BufferedImage image = null;
 		try {
-			image = ImageIO.read(src.toPath().toFile());
+			image = ImageIO.read(src.getInputStream());
 		} catch (IOException e) {
 			throw new GAGEException(e);
 		}
@@ -155,7 +158,10 @@ public class ResourceLoaders {
 	 */
 	public static final ResourceLoader<String> SHADER_LOADER = (src, args) -> {
 		try {
-			return Files.readAllLines(src.toPath()).stream().reduce("", (a, b) -> a + "\n" + b);
+			BufferedReader br = new BufferedReader(new InputStreamReader(src.getInputStream()));
+			String result = br.lines().reduce("", (a, b) -> a + "\n" + b);
+			br.close();
+			return result;
 		} catch (IOException e) {
 			throw new GAGEException(e);
 		}
@@ -170,8 +176,23 @@ public class ResourceLoaders {
 		MemoryStack.stackPush();
 		IntBuffer sampleRateBuffer = MemoryStack.stackMallocInt(1);
 
-		ShortBuffer rawAudioBuffer = STBVorbis.stb_vorbis_decode_filename(src.toString(), channelsBuffer,
-				sampleRateBuffer);
+		ByteBuffer b;
+		try {
+			InputStream in = src.getInputStream();
+			byte[] bytes = in.readAllBytes();
+			b = BufferUtils.createByteBuffer((int) bytes.length);
+			for (int i = 0; i < bytes.length; i++)
+				b.put(bytes[i]);
+			b.flip();
+			in.close();
+		} catch (IOException e) {
+			throw new GAGEException(e);
+		}
+		
+		ShortBuffer rawAudioBuffer = STBVorbis.stb_vorbis_decode_memory(b, channelsBuffer, sampleRateBuffer);
+		
+		//ShortBuffer rawAudioBuffer = STBVorbis.stb_vorbis_decode_filename(src.toString(), channelsBuffer,
+		//		sampleRateBuffer);
 
 		int channels = channelsBuffer.get();
 		int sampleRate = sampleRateBuffer.get();
@@ -194,7 +215,7 @@ public class ResourceLoaders {
 	 */
 	public static final ResourceLoader<SoundBuffer.SoundBufferMeta> WAV_SOUND_LOADER = (src, args) -> {
 		try {
-			AudioInputStream ais = AudioSystem.getAudioInputStream(src.toPath().toFile());
+			AudioInputStream ais = AudioSystem.getAudioInputStream(src.getInputStream());
 			AudioFormat sourceFormat = ais.getFormat();
 			
 			int format = -1;
@@ -308,7 +329,9 @@ public class ResourceLoaders {
 	public static final ResourceLoader<TileMapMeta> TILE_MAP_LOADER = (src, args) -> {
 		List<String> data = null;
 		try {
-			data = Files.readAllLines(src.toPath());
+			BufferedReader br = new BufferedReader(new InputStreamReader(src.getInputStream()));
+			data = br.lines().collect(Collectors.toList());
+			br.close();
 		} catch (IOException e) {
 			throw new GAGEException(e);
 		}
