@@ -66,7 +66,7 @@ public class Texture implements Indexable, Cleanable {
 		for (int i = 0; i < tm.getParameters().length; i++) {
 			int key = tm.getParameters()[i++];
 			int value = tm.getParameters()[i];
-			GL11.glGetTexParameteri(key, value);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, key, value);
 		}
 		
 		if (tm.shouldGenerateMipmaps())
