@@ -235,7 +235,7 @@ public class GameConfiguration {
 	/**
 	 * Sets the S wrap parameter the engine should use when generating new instances of {@link com.accele.gage.gfx.Texture Texture}.
 	 * 
-	 * @param textureMagFilterParameter the S wrap parameter to use for {@code Texture} generation
+	 * @param textureWrapSParameter the S wrap parameter to use for {@code Texture} generation
 	 */
 	public void setTextureWrapSParameter(TextureWrapParameter textureWrapSParameter) {
 		this.textureWrapSParameter = textureWrapSParameter;
@@ -244,7 +244,7 @@ public class GameConfiguration {
 	/**
 	 * Sets the T wrap parameter the engine should use when generating new instances of {@link com.accele.gage.gfx.Texture Texture}.
 	 * 
-	 * @param textureMagFilterParameter the T wrap parameter to use for {@code Texture} generation
+	 * @param textureWrapTParameter the T wrap parameter to use for {@code Texture} generation
 	 */
 	public void setTextureWrapTParameter(TextureWrapParameter textureWrapTParameter) {
 		this.textureWrapTParameter = textureWrapTParameter;
@@ -253,7 +253,7 @@ public class GameConfiguration {
 	/**
 	 * Sets the minifying filter parameter the engine should use when generating new instances of {@link com.accele.gage.gfx.Texture Texture}.
 	 * 
-	 * @param textureMagFilterParameter the minifying filter parameter to use for {@code Texture} generation
+	 * @param textureMinFilterParameter the minifying filter parameter to use for {@code Texture} generation
 	 */
 	public void setTextureMinFilterParameter(TextureFilterParameter textureMinFilterParameter) {
 		this.textureMinFilterParameter = textureMinFilterParameter;
@@ -304,7 +304,7 @@ public class GameConfiguration {
 	 */
 	public void useBuiltinDefaultTextureParameters() {
 		this.textureWrapSParameter = DEFAULT_TEXTURE_WRAP_S_PARAMETER;
-		this.textureWrapSParameter = DEFAULT_TEXTURE_WRAP_T_PARAMETER;
+		this.textureWrapTParameter = DEFAULT_TEXTURE_WRAP_T_PARAMETER;
 		this.textureMinFilterParameter = DEFAULT_TEXTURE_MIN_FILTER_PARAMETER;
 		this.textureMagFilterParameter = DEFAULT_TEXTURE_MAG_FILTER_PARAMETER;
 	}
@@ -329,7 +329,7 @@ public class GameConfiguration {
 	 */
 	public void useBuiltinDefaultRepeatingTextureParameters() {
 		this.textureWrapSParameter = DEFAULT_REPEATING_TEXTURE_WRAP_S_PARAMETER;
-		this.textureWrapSParameter = DEFAULT_REPEATING_TEXTURE_WRAP_T_PARAMETER;
+		this.textureWrapTParameter = DEFAULT_REPEATING_TEXTURE_WRAP_T_PARAMETER;
 		this.textureMinFilterParameter = DEFAULT_TEXTURE_MIN_FILTER_PARAMETER;
 		this.textureMagFilterParameter = DEFAULT_TEXTURE_MAG_FILTER_PARAMETER;
 	}
