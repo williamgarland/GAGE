@@ -124,4 +124,13 @@ public class EntityHandler implements Tickable, Renderable, Cleanable {
 		});
 	}
 	
+	/**
+	 * Returns the list of entities currently in the {@code EntityHandler}.
+	 * 
+	 * @return the list of entities currently in the {@code EntityHandler}
+	 */
+	public List<Entity> getEntities() {
+		return entities;
+	}
+	
 }
