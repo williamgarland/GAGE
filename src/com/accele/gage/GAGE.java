@@ -164,35 +164,37 @@ public class GAGE {
 		double prev = getGameTime();
 		int frames = 0;
 		
-		while (running) {
-			int loops = 0;
-			
-			while (getGameTime() > nextTick && loops < maxFrameskip) {
-				controlHandler.tick();
-				currentState.tick();
+		try {
+			while (running) {
+				int loops = 0;
 				
-				nextTick += skipTicks;
-				loops++;
+				while (getGameTime() > nextTick && loops < maxFrameskip) {
+					controlHandler.tick();
+					currentState.tick();
+					
+					nextTick += skipTicks;
+					loops++;
+				}
+				
+				double interpolation = (getGameTime() + skipTicks - nextTick) / skipTicks;
+				
+				window.onCycleBegin();
+				currentState.render(graphics, interpolation);
+				window.onCycleEnd();
+				
+				while (!deferredEvents.isEmpty())
+					deferredEvents.pop().accept(this);
+				
+				if (getGameTime() - prev >= 1) {
+					config.setFps((int) (frames / (getGameTime() - prev)));
+					frames = 0;
+					prev = getGameTime();
+				} else
+					frames++;
 			}
-			
-			double interpolation = (getGameTime() + skipTicks - nextTick) / skipTicks;
-			
-			window.onCycleBegin();
-			currentState.render(graphics, interpolation);
-			window.onCycleEnd();
-			
-			while (!deferredEvents.isEmpty())
-				deferredEvents.pop().accept(this);
-			
-			if (getGameTime() - prev >= 1) {
-				config.setFps((int) (frames / (getGameTime() - prev)));
-				frames = 0;
-				prev = getGameTime();
-			} else
-				frames++;
+		} finally {
+			clean();			
 		}
-		
-		clean();
 	}
 	
 	private void clean() {
