@@ -183,7 +183,7 @@ public class GAGE {
 				window.onCycleEnd();
 				
 				while (!deferredEvents.isEmpty())
-					deferredEvents.pop().accept(this);
+					deferredEvents.poll().accept(this);
 				
 				if (getGameTime() - prev >= 1) {
 					config.setFps((int) (frames / (getGameTime() - prev)));
@@ -475,12 +475,12 @@ public class GAGE {
 	}
 	
 	/**
-	 * Adds the specified event to the event queue. All events in the event queue will run in an arbitrary order at the end of the next frame.
+	 * Adds the specified event to the event queue. All events in the event queue will run in the order in which they were added at the end of the next frame.
 	 * 
 	 * @param event	the event to add to the event queue
 	 */
 	public void deferEvent(Consumer<GAGE> event) {
-		deferredEvents.push(event);
+		deferredEvents.add(event);
 	}
 	
 	/**
