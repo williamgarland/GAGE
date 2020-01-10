@@ -3,6 +3,7 @@ package com.accele.gage.math;
 public class OBB extends BoundingBox {
 
 	private float angle;
+	private boolean debug = false;
 
 	public OBB(Vector3f position, Vector3f size, float angle) {
 		super(position, new Vector3f(size));
@@ -22,13 +23,15 @@ public class OBB extends BoundingBox {
 		Vector2f[] vertices1 = getVertices(position, size, angle);
 		Vector2f[] vertices2 = getVertices(otherOBB.position, otherOBB.size, otherOBB.angle);
 		
-		System.out.println("Vertices1:");
-		for (Vector2f v : vertices1)
-			System.out.println(v.x + ", " + v.y);
-		
-		System.out.println("\n\nVertices2:");
-		for (Vector2f v : vertices2)
-			System.out.println(v.x + ", " + v.y);
+		if (debug) {
+			System.out.println("Vertices1:");
+			for (Vector2f v : vertices1)
+				System.out.println(v.x + ", " + v.y);
+			
+			System.out.println("\n\nVertices2:");
+			for (Vector2f v : vertices2)
+				System.out.println(v.x + ", " + v.y);
+		}
 		
 		Vector2f[] axes = getPerpendicularAxes(vertices1, vertices2);
 
@@ -144,6 +147,10 @@ public class OBB extends BoundingBox {
 
 	public float getAngle() {
 		return angle;
+	}
+	
+	public void setAngle(float angle) {
+		this.angle = angle;
 	}
 
 }

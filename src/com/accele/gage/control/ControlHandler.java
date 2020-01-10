@@ -18,6 +18,8 @@ public class ControlHandler implements Tickable, Cleanable {
 	private static final int KEY_HELD = 3;
 	
 	private int[] keys;
+	private double mx;
+	private double my;
 	
 	public ControlHandler(Registry<ControlListener> controlListenerRegistry,
 			Registry<KeyListener> keyListenerRegistry, Registry<MouseListener> mouseListenerRegistry, long windowPointer) {
@@ -35,13 +37,15 @@ public class ControlHandler implements Tickable, Cleanable {
 				keyListenerRegistry.getEntries().forEach(kl -> kl.keyHeld(event));*/
 		});
 		GLFW.glfwSetMouseButtonCallback(windowPointer, (window, button, action, mods) -> {
-			MouseEvent event = new MouseEvent(button, mods);
+			MouseEvent event = new MouseEvent(button, mods, mx, my);
 			if (action == GLFW.GLFW_PRESS)
 				mouseListenerRegistry.getEntries().forEach(ml -> ml.mouseButtonPressed(event));
 			else if (action == GLFW.GLFW_RELEASE)
 				mouseListenerRegistry.getEntries().forEach(ml -> ml.mouseButtonReleased(event));
 		});
 		GLFW.glfwSetCursorPosCallback(windowPointer, (window, x, y) -> {
+			mx = x;
+			my = y;
 			MouseMoveEvent event = new MouseMoveEvent(x, y);
 			mouseListenerRegistry.getEntries().forEach(ml -> ml.mouseMoved(event));
 		});
@@ -68,12 +72,11 @@ public class ControlHandler implements Tickable, Cleanable {
 				keyListenerRegistry.getEntries().forEach(kl -> kl.keyHeld(new KeyEvent(key, 0, 0)));
 			}
 		}
-		return;
 	}
 
 	@Override
 	public void clean() {
-		return;
+		
 	}
 	
 }
