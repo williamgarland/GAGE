@@ -18,6 +18,7 @@ public class ControlHandler implements Tickable, Cleanable {
 	private static final int KEY_HELD = 3;
 	
 	private int[] keys;
+	private int modifiers;
 	private double mx;
 	private double my;
 	
@@ -27,14 +28,10 @@ public class ControlHandler implements Tickable, Cleanable {
 		this.keyListenerRegistry = keyListenerRegistry;
 		this.mouseListenerRegistry = mouseListenerRegistry;
 		GLFW.glfwSetKeyCallback(windowPointer, (window, key, scancode, action, mods) -> {
-			keys[key] = action == GLFW.GLFW_RELEASE ? KEY_RELEASED : action == GLFW.GLFW_PRESS ? KEY_PRESSED : keys[key];
-			/*KeyEvent event = new KeyEvent(key, scancode, mods);
-			if (action == GLFW.GLFW_PRESS)
-				keyListenerRegistry.getEntries().forEach(kl -> kl.keyPressed(event));
-			else if (action == GLFW.GLFW_RELEASE)
-				keyListenerRegistry.getEntries().forEach(kl -> kl.keyReleased(event));
-			else if (action == GLFW.GLFW_REPEAT)
-				keyListenerRegistry.getEntries().forEach(kl -> kl.keyHeld(event));*/
+			if (key != -1) {
+				keys[key] = action == GLFW.GLFW_RELEASE ? KEY_RELEASED : action == GLFW.GLFW_PRESS ? KEY_PRESSED : keys[key];
+				modifiers = mods;
+			}
 		});
 		GLFW.glfwSetMouseButtonCallback(windowPointer, (window, button, action, mods) -> {
 			MouseEvent event = new MouseEvent(button, mods, mx, my);
@@ -61,15 +58,15 @@ public class ControlHandler implements Tickable, Cleanable {
 		for (int i = 0; i < keys.length; i++) {
 			if (keys[i] == KEY_PRESSED) {
 				final int key = i;
-				keyListenerRegistry.getEntries().forEach(kl -> kl.keyPressed(new KeyEvent(key, 0, 0)));
+				keyListenerRegistry.getEntries().forEach(kl -> kl.keyPressed(new KeyEvent(key, GLFW.glfwGetKeyScancode(key), modifiers)));
 				keys[i] = KEY_HELD;
 			} else if (keys[i] == KEY_RELEASED) {
 				final int key = i;
-				keyListenerRegistry.getEntries().forEach(kl -> kl.keyReleased(new KeyEvent(key, 0, 0)));
+				keyListenerRegistry.getEntries().forEach(kl -> kl.keyReleased(new KeyEvent(key, GLFW.glfwGetKeyScancode(key), modifiers)));
 				keys[i] = KEY_INACTIVE;
 			} else if (keys[i] == KEY_HELD) {
 				final int key = i;
-				keyListenerRegistry.getEntries().forEach(kl -> kl.keyHeld(new KeyEvent(key, 0, 0)));
+				keyListenerRegistry.getEntries().forEach(kl -> kl.keyHeld(new KeyEvent(key, GLFW.glfwGetKeyScancode(key), modifiers)));
 			}
 		}
 	}
