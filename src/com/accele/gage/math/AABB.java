@@ -8,7 +8,7 @@ public class AABB extends BoundingBox {
 	
 	@Override
 	public boolean intersects(BoundingBox other) {
-		if (other instanceof OBB)
+		if (other instanceof OBB2)
 			return toOBB().intersects(other);
 		
 		AABB b = other instanceof AABB ? ((AABB) other) : null;
