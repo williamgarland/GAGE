@@ -22,8 +22,8 @@ public class AABB extends BoundingBox {
 		return false;
 	}
 	
-	public OBB toOBB() {
-		return new OBB(position, size, 0);
+	public OBB2 toOBB() {
+		return new OBB2(position, size, 0);
 	}
 
 }
