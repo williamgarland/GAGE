@@ -43,7 +43,7 @@ public class ControlHandler implements Tickable, Cleanable {
 		});
 		GLFW.glfwSetCursorPosCallback(windowPointer, (window, x, y) -> {
 			mx = convertRange(x / GAGE.getInstance().getWindow().getWidth(), 0, 1, -1, 1);
-			my = convertRange(y / GAGE.getInstance().getWindow().getHeight(), 0, 1, -1, 1);
+			my = convertRange(y / GAGE.getInstance().getWindow().getHeight(), 0, 1, -1, 1) * -1;
 			MouseMoveEvent event = new MouseMoveEvent(x, y);
 			mouseListenerRegistry.getEntries().forEach(ml -> ml.mouseMoved(event));
 		});
