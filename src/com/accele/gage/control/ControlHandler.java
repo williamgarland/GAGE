@@ -37,19 +37,19 @@ public class ControlHandler implements Tickable, Cleanable {
 		GLFW.glfwSetMouseButtonCallback(windowPointer, (window, button, action, mods) -> {
 			MouseEvent event = new MouseEvent(button, mods, mx, my);
 			if (action == GLFW.GLFW_PRESS)
-				mouseListenerRegistry.getEntries().forEach(ml -> ml.mouseButtonPressed(event));
+				mouseListenerRegistry.getEntries().forEach(ml -> { if (ml.canReceiveEvents()) ml.mouseButtonPressed(event); });
 			else if (action == GLFW.GLFW_RELEASE)
-				mouseListenerRegistry.getEntries().forEach(ml -> ml.mouseButtonReleased(event));
+				mouseListenerRegistry.getEntries().forEach(ml -> { if (ml.canReceiveEvents()) ml.mouseButtonReleased(event); });
 		});
 		GLFW.glfwSetCursorPosCallback(windowPointer, (window, x, y) -> {
 			mx = convertRange(x / GAGE.getInstance().getWindow().getWidth(), 0, 1, -1, 1);
 			my = convertRange(y / GAGE.getInstance().getWindow().getHeight(), 0, 1, -1, 1) * -1;
 			MouseMoveEvent event = new MouseMoveEvent(x, y);
-			mouseListenerRegistry.getEntries().forEach(ml -> ml.mouseMoved(event));
+			mouseListenerRegistry.getEntries().forEach(ml -> { if (ml.canReceiveEvents()) ml.mouseMoved(event); });
 		});
 		GLFW.glfwSetScrollCallback(windowPointer, (window, x, y) -> {
 			MouseWheelEvent event = new MouseWheelEvent(x, y);
-			mouseListenerRegistry.getEntries().forEach(ml -> ml.mouseWheelMoved(event));
+			mouseListenerRegistry.getEntries().forEach(ml -> { if (ml.canReceiveEvents()) ml.mouseWheelMoved(event); });
 		});
 		this.keys = new int[GLFW.GLFW_KEY_LAST];
 	}
@@ -69,15 +69,15 @@ public class ControlHandler implements Tickable, Cleanable {
 		for (int i = 0; i < keys.length; i++) {
 			if (keys[i] == KEY_PRESSED) {
 				final int key = i;
-				keyListenerRegistry.getEntries().forEach(kl -> kl.keyPressed(new KeyEvent(key, GLFW.glfwGetKeyScancode(key), modifiers)));
+				keyListenerRegistry.getEntries().forEach(kl -> { if (kl.canReceiveEvents()) kl.keyPressed(new KeyEvent(key, GLFW.glfwGetKeyScancode(key), modifiers)); });
 				keys[i] = KEY_HELD;
 			} else if (keys[i] == KEY_RELEASED) {
 				final int key = i;
-				keyListenerRegistry.getEntries().forEach(kl -> kl.keyReleased(new KeyEvent(key, GLFW.glfwGetKeyScancode(key), modifiers)));
+				keyListenerRegistry.getEntries().forEach(kl -> { if (kl.canReceiveEvents()) kl.keyReleased(new KeyEvent(key, GLFW.glfwGetKeyScancode(key), modifiers)); });
 				keys[i] = KEY_INACTIVE;
 			} else if (keys[i] == KEY_HELD) {
 				final int key = i;
-				keyListenerRegistry.getEntries().forEach(kl -> kl.keyHeld(new KeyEvent(key, GLFW.glfwGetKeyScancode(key), modifiers)));
+				keyListenerRegistry.getEntries().forEach(kl -> { if (kl.canReceiveEvents()) kl.keyHeld(new KeyEvent(key, GLFW.glfwGetKeyScancode(key), modifiers)); });
 			}
 		}
 	}
