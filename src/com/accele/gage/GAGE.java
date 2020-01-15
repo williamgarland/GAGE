@@ -198,7 +198,7 @@ public class GAGE {
 	}
 	
 	private void clean() {
-		currentState.exit();
+		currentState.exit(null);
 		entityHandler.clean();
 		graphics.clean();
 		animationRegistry.clean();
@@ -507,9 +507,9 @@ public class GAGE {
 	 * @throws IllegalArgumentException		if the specified {@code GameState} is not registered in the state registry
 	 */
 	public void setCurrentState(String registryId, boolean exitOld, boolean initNew) {
-		if (currentState != null && exitOld)
-			currentState.exit();
 		GameState newState = stateRegistry.getEntry(registryId);
+		if (currentState != null && exitOld)
+			currentState.exit(newState);
 		if (initNew)
 			newState.init();
 		currentState = newState;

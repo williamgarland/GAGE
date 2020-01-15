@@ -59,8 +59,12 @@ public abstract class GameState implements Indexable, Tickable, Renderable, Clea
 	 * if either {@link com.accele.gage.GAGE#setCurrentState(String) setCurrentState(String)} was called
 	 * or {@link com.accele.gage.GAGE#setCurrentState(String, boolean, boolean) setCurrentState(String, boolean, boolean)} was called with {@code exitOld} set to {@code true}.
 	 * </p>
+	 * <p>
+	 * Note that {@code newState} can be {@code null}, especially during the cleanup phase of engine termination.
+	 * </p>
+	 * @param newState the new {@code GameState} that will be set to the current state
 	 */
-	public abstract void exit();
+	public abstract void exit(GameState newState);
 	
 	@Override
 	public String getRegistryId() {
