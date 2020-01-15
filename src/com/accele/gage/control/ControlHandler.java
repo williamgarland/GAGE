@@ -3,6 +3,7 @@ package com.accele.gage.control;
 import org.lwjgl.glfw.GLFW;
 
 import com.accele.gage.Cleanable;
+import com.accele.gage.GAGE;
 import com.accele.gage.Registry;
 import com.accele.gage.Tickable;
 
@@ -41,8 +42,8 @@ public class ControlHandler implements Tickable, Cleanable {
 				mouseListenerRegistry.getEntries().forEach(ml -> ml.mouseButtonReleased(event));
 		});
 		GLFW.glfwSetCursorPosCallback(windowPointer, (window, x, y) -> {
-			mx = x;
-			my = y;
+			mx = convertRange(x / GAGE.getInstance().getWindow().getWidth(), 0, 1, -1, 1);
+			my = convertRange(y / GAGE.getInstance().getWindow().getHeight(), 0, 1, -1, 1);
 			MouseMoveEvent event = new MouseMoveEvent(x, y);
 			mouseListenerRegistry.getEntries().forEach(ml -> ml.mouseMoved(event));
 		});
@@ -51,6 +52,16 @@ public class ControlHandler implements Tickable, Cleanable {
 			mouseListenerRegistry.getEntries().forEach(ml -> ml.mouseWheelMoved(event));
 		});
 		this.keys = new int[GLFW.GLFW_KEY_LAST];
+	}
+	
+	private static double convertRange(double oldValue, double oldMin, double oldMax, double newMin, double newMax) {
+		double oldRange = oldMax - oldMin;
+		if (oldRange == 0)
+			return newMin;
+		else {
+			double newRange = newMax - newMin;
+			return (((oldValue - oldMin) * newRange) / oldRange) + newMin;
+		}
 	}
 
 	@Override
