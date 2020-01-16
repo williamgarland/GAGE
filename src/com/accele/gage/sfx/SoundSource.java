@@ -10,6 +10,7 @@ public class SoundSource implements Indexable, Cleanable {
 
 	private String registryId;
 	private int sourceId;
+	private SoundBuffer linkedSound;
 	
 	public SoundSource(String registryId) {
 		this.registryId = registryId;
@@ -17,9 +18,13 @@ public class SoundSource implements Indexable, Cleanable {
 	}
 	
 	public void linkSound(String registryId) {
-		SoundBuffer buffer = GAGE.getInstance().getSoundBufferRegistry().getEntry(registryId);
-		AL10.alSourcei(sourceId, AL10.AL_BUFFER, buffer.getBufferId());
-		buffer.setLinkedSourceId(sourceId);
+		this.linkedSound = GAGE.getInstance().getSoundBufferRegistry().getEntry(registryId);
+		AL10.alSourcei(sourceId, AL10.AL_BUFFER, linkedSound.getBufferId());
+		linkedSound.setLinkedSourceId(sourceId);
+	}
+	
+	public SoundBuffer getLinkedSound() {
+		return linkedSound;
 	}
 	
 	public float getVolume() {
