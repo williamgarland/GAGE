@@ -247,10 +247,16 @@ public class Window implements Cleanable {
 	}
 	
 	/**
-	 * Called at the end of every game loop cycle to swap window buffers and poll input events. This method is for internal use only and should not be called directly by the user.
+	 * Called at the end of every game loop cycle to swap window buffers. This method is for internal use only and should not be called directly by the user.
 	 */
 	public void onCycleEnd() {
 		GLFW.glfwSwapBuffers(pointer);
+	}
+	
+	/**
+	 * Called at the end of every game loop cycle to poll input events. This method is for internal use only and should not be called directly by the user.
+	 */
+	public void pollEvents() {
 		GLFW.glfwPollEvents();
 	}
 	

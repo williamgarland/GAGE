@@ -23,6 +23,7 @@ public class GAGEContext implements Indexable, Tickable, Renderable, Cleanable {
 	private Registry<GameState> stateRegistry;
 	GameState currentState;
 	private Deque<Consumer<GAGE>> deferredEvents;
+	private boolean backgroundRendering;
 	
 	public GAGEContext(String registryId, int screenWidth, int screenHeight, String title) {
 		this(registryId, screenWidth, screenHeight, title, null);
@@ -131,6 +132,14 @@ public class GAGEContext implements Indexable, Tickable, Renderable, Cleanable {
 		if (initNew)
 			newState.init(currentState);
 		currentState = newState;
+	}
+	
+	public boolean doBackgroundRendering() {
+		return backgroundRendering;
+	}
+	
+	public void setDoBackgroundRendering(boolean backgroundRendering) {
+		this.backgroundRendering = backgroundRendering;
 	}
 	
 }

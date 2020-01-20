@@ -172,8 +172,13 @@ public class GAGE {
 				double interpolation = (getGameTime() + skipTicks - nextTick) / skipTicks;
 				
 				currentContext.render(graphics, interpolation);
+				currentContext.getWindow().pollEvents();
 				
-				contextRegistry.getEntries().forEach(ctx -> ctx.fireEvents());
+				contextRegistry.getEntries().forEach(ctx -> {
+					if (ctx.doBackgroundRendering())
+						ctx.render(graphics, interpolation);
+					ctx.fireEvents();
+				});
 				
 				if (getGameTime() - prev >= 1) {
 					config.setFps((int) (frames / (getGameTime() - prev)));
