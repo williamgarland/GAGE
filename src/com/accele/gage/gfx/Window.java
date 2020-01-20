@@ -329,4 +329,12 @@ public class Window implements Cleanable {
 		return pointer;
 	}
 	
+	/**
+	 * Returns the aspect ratio of the window.
+	 * @return the aspect ratio of the window
+	 */
+	public double getAspectRatio() {
+		return (double) width / (double) height;
+	}
+	
 }

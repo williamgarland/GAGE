@@ -176,7 +176,7 @@ public class GAGE {
 				
 				contextRegistry.getEntries().forEach(ctx -> {
 					if (ctx.doBackgroundRendering())
-						ctx.render(graphics, interpolation);
+						hotSwapContext(ctx.getRegistryId(), gage -> ctx.render(graphics, interpolation));
 					ctx.fireEvents();
 				});
 				
