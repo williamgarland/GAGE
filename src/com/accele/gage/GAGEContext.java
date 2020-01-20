@@ -1,5 +1,9 @@
 package com.accele.gage;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.function.Consumer;
+
 import com.accele.gage.control.ControlHandler;
 import com.accele.gage.control.ControlListener;
 import com.accele.gage.control.KeyListener;
@@ -17,7 +21,8 @@ public class GAGEContext implements Indexable, Tickable, Renderable, Cleanable {
 	private Registry<KeyListener> keyListenerRegistry;
 	private Registry<MouseListener> mouseListenerRegistry;
 	private Registry<GameState> stateRegistry;
-	protected GameState currentState;
+	GameState currentState;
+	private Deque<Consumer<GAGE>> deferredEvents;
 	
 	public GAGEContext(String registryId, int screenWidth, int screenHeight, String title) {
 		this(registryId, screenWidth, screenHeight, title, null);
@@ -31,6 +36,7 @@ public class GAGEContext implements Indexable, Tickable, Renderable, Cleanable {
 		this.mouseListenerRegistry = new Registry<>();
 		this.stateRegistry = new Registry<>();
 		this.controlHandler = new ControlHandler(controlListenerRegistry, keyListenerRegistry, mouseListenerRegistry, window);
+		this.deferredEvents = new ArrayDeque<>();
 		
 		window.detachContext();
 		GAGE.getInstance().getMainContext().window.attachContext();
@@ -44,6 +50,7 @@ public class GAGEContext implements Indexable, Tickable, Renderable, Cleanable {
 		this.mouseListenerRegistry = new Registry<>();
 		this.stateRegistry = new Registry<>();
 		this.controlHandler = new ControlHandler(controlListenerRegistry, keyListenerRegistry, mouseListenerRegistry, window);
+		this.deferredEvents = new ArrayDeque<>();
 	}
 	
 	@Override
@@ -67,6 +74,17 @@ public class GAGEContext implements Indexable, Tickable, Renderable, Cleanable {
 		keyListenerRegistry.clean();
 		mouseListenerRegistry.clean();
 		controlHandler.clean();
+	}
+	
+	void fireEvents() {
+		GAGE.getInstance().hotSwapContext(registryId, gage -> {
+			while (!deferredEvents.isEmpty())
+				deferredEvents.poll().accept(gage);
+		});
+	}
+	
+	public void deferEvent(Consumer<GAGE> event) {
+		deferredEvents.add(event);
 	}
 	
 	@Override

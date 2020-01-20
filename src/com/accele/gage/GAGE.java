@@ -1,7 +1,5 @@
 package com.accele.gage;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.Random;
 import java.util.function.Consumer;
 
@@ -85,7 +83,6 @@ public class GAGE {
 	private Registry<SoundSource> soundSourceRegistry;
 	private Registry<GAGEContext> contextRegistry;
 	private boolean running;
-	private Deque<Consumer<GAGE>> deferredEvents;
 	double ticksPerSecond;
 	
 	private GAGEContext mainContext;
@@ -112,7 +109,6 @@ public class GAGE {
 		this.soundSourceRegistry = new Registry<>();
 		this.contextRegistry = new Registry<>();
 		this.entityHandler = new EntityHandler(config);
-		this.deferredEvents = new ArrayDeque<>();
 		this.rand = new Random();
 		this.logger = new Logger(System.out, "[" + this.getClass().getCanonicalName() + "]");
 		
@@ -177,8 +173,7 @@ public class GAGE {
 				
 				currentContext.render(graphics, interpolation);
 				
-				while (!deferredEvents.isEmpty())
-					deferredEvents.poll().accept(this);
+				contextRegistry.getEntries().forEach(ctx -> ctx.fireEvents());
 				
 				if (getGameTime() - prev >= 1) {
 					config.setFps((int) (frames / (getGameTime() - prev)));
@@ -417,12 +412,17 @@ public class GAGE {
 	}
 	
 	/**
-	 * Adds the specified event to the event queue. All events in the event queue will run in the order in which they were added at the end of the next frame.
+	 * Adds the specified event to the event queue of the current context.
+	 * All events in the event queue will run in the order in which they were added at the end of the next frame.
+	 * <p>
+	 * This is a convenience method for accessing the specified resource contained in the current context.
+	 * To directly access this resource, among others, use {@link #getCurrentContext() getCurrentContext()}.
+	 * </p>
 	 * 
 	 * @param event	the event to add to the event queue
 	 */
 	public void deferEvent(Consumer<GAGE> event) {
-		deferredEvents.add(event);
+		currentContext.deferEvent(event);
 	}
 	
 	/**
