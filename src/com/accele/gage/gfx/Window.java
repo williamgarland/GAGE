@@ -123,6 +123,13 @@ public class Window implements Cleanable {
 		GL.createCapabilities();
 			
 		GLFW.glfwSetWindowCloseCallback(pointer, window -> close());
+		GLFW.glfwSetWindowSizeCallback(pointer, (window, newWidth, newHeight) -> {
+			this.width = newWidth;
+			this.height = newHeight;
+		});
+		GLFW.glfwSetFramebufferSizeCallback(pointer, (window, newWidth, newHeight) -> {
+			GL11.glViewport(0, 0, newWidth, newHeight);
+		});
 	}
 	
 	/**
