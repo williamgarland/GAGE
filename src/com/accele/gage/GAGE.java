@@ -670,6 +670,25 @@ public class GAGE {
 	}
 	
 	/**
+	 * Changes the current context only to perform the specified action.
+	 * <p>
+	 * This method will switch the current context to the one with the specified registry ID,
+	 * run the specified action, and then immediately switch back to the previous context.
+	 * </p>
+	 * 
+	 * @param contextRegistryId	the registry ID of the target context
+	 * @param action			the action to be performed in the specified context
+	 */
+	public void hotSwapContext(String contextRegistryId, Consumer<GAGE> action) {
+		GAGEContext prev = currentContext;
+		setCurrentContext(contextRegistryId);
+		action.accept(this);
+		currentContext.getWindow().detachContext();
+		prev.getWindow().attachContext();
+		currentContext = prev;
+	}
+	
+	/**
 	 * Initializes the engine using the specified screen width, screen height, and title.
 	 * This method must be called before using any other method in the engine and may only
 	 * be called once per instance of the engine.
