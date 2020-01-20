@@ -49,8 +49,11 @@ public abstract class GameState implements Indexable, Tickable, Renderable, Clea
 	 * this method will only be called if either {@link com.accele.gage.GAGE#setCurrentState(String) setCurrentState(String)} was called
 	 * or {@link com.accele.gage.GAGE#setCurrentState(String, boolean, boolean) setCurrentState(String, boolean, boolean)} was called with {@code initNew} set to {@code true}.
 	 * </p>
+	 * <p>
+	 * Note that {@code oldState} can be {@code null}, especially during the initialization phase of engine termination.
+	 * </p>
 	 */
-	public abstract void init();
+	public abstract void init(GameState oldState);
 	
 	/**
 	 * Called when setting the current state to finalize this {@code GameState}.

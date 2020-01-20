@@ -637,10 +637,11 @@ public class GAGE {
 			currentContext.getCurrentState().exit(newState);
 		currentContext.getWindow().detachContext();
 		newContext.getWindow().attachContext();
-		if (initNew)
-			newState.init();
-		newContext.currentState = newState;
+		GameState oldState = currentContext.currentState;
 		currentContext = newContext;
+		if (initNew)
+			newState.init(oldState);
+		newContext.currentState = newState;
 	}
 	
 	/**

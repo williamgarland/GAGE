@@ -111,7 +111,7 @@ public class GAGEContext implements Indexable, Tickable, Renderable, Cleanable {
 		if (currentState != null && exitOld)
 			currentState.exit(newState);
 		if (initNew)
-			newState.init();
+			newState.init(currentState);
 		currentState = newState;
 	}
 	
