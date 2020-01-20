@@ -101,11 +101,11 @@ public class EntityHandler implements Tickable, Renderable, Cleanable {
 		GAGE.getInstance().deferEvent(gage -> {
 			entities.remove(e);
 			if (e instanceof KeyListener)
-				gage.getKeyListenerRegistry().removeEntry(e.registryId);
+				gage.getMainContext().getKeyListenerRegistry().removeEntry(e.registryId);
 			if (e instanceof MouseListener)
-				gage.getMouseListenerRegistry().removeEntry(e.registryId);
+				gage.getMainContext().getMouseListenerRegistry().removeEntry(e.registryId);
 			if (e instanceof ControlListener && !(e instanceof KeyListener) && !(e instanceof MouseListener))
-				gage.getControlListenerRegistry().removeEntry(e.registryId);
+				gage.getMainContext().getControlListenerRegistry().removeEntry(e.registryId);
 			entityRemoveCallbacks.forEach(c -> c.call(e));
 		});
 	}
@@ -124,11 +124,11 @@ public class EntityHandler implements Tickable, Renderable, Cleanable {
 		GAGE.getInstance().deferEvent(gage -> {
 			entities.forEach(e -> {
 				if (e instanceof KeyListener)
-					gage.getKeyListenerRegistry().removeEntry(e.registryId);
+					gage.getMainContext().getKeyListenerRegistry().removeEntry(e.registryId);
 				if (e instanceof MouseListener)
-					gage.getMouseListenerRegistry().removeEntry(e.registryId);
+					gage.getMainContext().getMouseListenerRegistry().removeEntry(e.registryId);
 				if (e instanceof ControlListener && !(e instanceof KeyListener) && !(e instanceof MouseListener))
-					gage.getControlListenerRegistry().removeEntry(e.registryId);
+					gage.getMainContext().getControlListenerRegistry().removeEntry(e.registryId);
 				entityRemoveCallbacks.forEach(c -> c.call(e));
 			});
 			entities.clear();

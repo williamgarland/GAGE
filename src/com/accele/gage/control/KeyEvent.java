@@ -1,6 +1,8 @@
 package com.accele.gage.control;
 
-public class KeyEvent {
+import com.accele.gage.gfx.Window;
+
+public class KeyEvent extends ControlEvent {
 	
 	public static final int KEY_SPACE = 32, KEY_APOSTROPHE = 39, KEY_COMMA = 44, KEY_MINUS = 45, KEY_PERIOD = 46,
 			KEY_SLASH = 47, KEY_0 = 48, KEY_1 = 49, KEY_2 = 50, KEY_3 = 51, KEY_4 = 52, KEY_5 = 53, KEY_6 = 54,
@@ -28,7 +30,8 @@ public class KeyEvent {
 	private int scancode;
 	private int modifiers;
 	
-	public KeyEvent(int key, int scancode, int modifiers) {
+	public KeyEvent(Window window, int key, int scancode, int modifiers) {
+		super(window);
 		this.key = key;
 		this.scancode = scancode;
 		this.modifiers = modifiers;

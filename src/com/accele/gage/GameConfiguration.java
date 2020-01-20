@@ -28,7 +28,7 @@ public class GameConfiguration {
 	public static final TextureFilterParameter DEFAULT_TEXTURE_MAG_FILTER_PARAMETER = TextureFilterParameter.LINEAR;
 	public static final TextureFilterParameter DEFAULT_TEXTURE_MIN_FILTER_PARAMETER = TextureFilterParameter.LINEAR_MIPMAP_LINEAR;
 	
-	private final String version = "1.1.5";
+	private final String version = "2.0.0";
 	private int fps;
 	double ticksPerSecond;
 	private boolean doEntityCollision;

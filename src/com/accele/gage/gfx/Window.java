@@ -45,6 +45,7 @@ public class Window implements Cleanable {
 	private int height;
 	private String title;
 	private long pointer;
+	private boolean contextCurrent;
 	
 	/**
 	 * Initializes the {@code Window} using the specified {@code width}, {@code height}, {@code title}, and {@code windowHints}.
@@ -62,6 +63,31 @@ public class Window implements Cleanable {
 	 * @see com.accele.gage.gfx.Window Window
 	 */
 	public Window(int width, int height, String title, int[] windowHints) {
+		this(width, height, title, windowHints, null);
+	}
+	
+	/**
+	 * Initializes the {@code Window} using the specified {@code width}, {@code height}, {@code title}, and {@code windowHints},
+	 * with {@code parent} as the parent {@code Window}.
+	 * <p>
+	 * This constructor is not intended to be called by the user; {@code Window} creation is handled by the engine.
+	 * The width, height, and title of the {@code Window} is specified using the {@link com.accele.gage.GAGE#init(int, int, String) init(int, int, String)} method.
+	 * For window hints, GAGE has a list of preset hints (see the {@link com.accele.gage.gfx.Window Window} class for a complete list); to specify custom window hints, 
+	 * call the {@link com.accele.gage.GAGE#setCustomWindowHints(int[]) setCustomWindowHints(int[])} method prior to initializing the engine.
+	 * </p>
+	 * <p>
+	 * Creating a {@code Window} using this constructor will create a GLFW window with shared resources between itself and its parent window.
+	 * To create a window without sharing resources, use {@link #Window(int, int, String, int[]) Window(int, int, String, int[])}.
+	 * </p>
+	 * @param width			the width of the window
+	 * @param height		the height of the window
+	 * @param title			the title of the window
+	 * @param windowHints	the window hints to use when initializing the window
+	 * @param parent		the parent window of this window
+	 * 
+	 * @see com.accele.gage.gfx.Window Window
+	 */
+	public Window(int width, int height, String title, int[] windowHints, Window parent) {
 		this.width = width;
 		this.height = height;
 		this.title = title;
@@ -83,17 +109,64 @@ public class Window implements Cleanable {
 			}
 		}
 			
-		this.pointer = GLFW.glfwCreateWindow(width, height, title, 0, 0);
+		this.pointer = GLFW.glfwCreateWindow(width, height, title, 0, parent == null ? 0 : parent.pointer);
 			
 		if (pointer == 0) {
 			GLFW.glfwTerminate();
 			throw new RuntimeException("Failed to create GLFW window.");
 		}
+		
+		if (parent != null && parent.contextCurrent)
+			parent.detachContext();
 			
-		GLFW.glfwMakeContextCurrent(pointer);
+		attachContext();
 		GL.createCapabilities();
 			
 		GLFW.glfwSetWindowCloseCallback(pointer, window -> close());
+	}
+	
+	/**
+	 * Returns the current context status of the window.
+	 * <p>
+	 * GLFW requires that each window be associated with a particular OpenGL context in order to work,
+	 * and only one context may be attached at any one time. When switching contexts, 
+	 * make sure that the previous context is detached before attaching a new one!
+	 * </p>
+	 * @return the current context status of the window
+	 */
+	public boolean isContextCurrent() {
+		return contextCurrent;
+	}
+	
+	/**
+	 * Attaches the OpenGL context associated with this window.
+	 * <p>
+	 * GLFW requires that each window be associated with a particular OpenGL context in order to work,
+	 * and only one context may be attached at any one time. When switching contexts, 
+	 * make sure that the previous context is detached before attaching a new one!
+	 * </p>
+	 */
+	public void attachContext() {
+		if (contextCurrent)
+			return;
+		contextCurrent = true;
+		GLFW.glfwMakeContextCurrent(pointer);
+	}
+	
+	/**
+	 * Detaches the OpenGL context associated with this window.
+	 * <p>
+	 * GLFW requires that each window be associated with a particular OpenGL context in order to work,
+	 * and only one context may be attached at any one time. When switching contexts, 
+	 * make sure that the previous context is detached before attaching a new one!
+	 * </p>
+	 * 
+	 */
+	public void detachContext() {
+		if (!contextCurrent)
+			return;
+		contextCurrent = false;
+		GLFW.glfwMakeContextCurrent(0);
 	}
 	
 	/**
@@ -179,6 +252,13 @@ public class Window implements Cleanable {
 	public void onCycleEnd() {
 		GLFW.glfwSwapBuffers(pointer);
 		GLFW.glfwPollEvents();
+	}
+	
+	/**
+	 * Brings this window to the front and sets input focus.
+	 */
+	public void focus() {
+		GLFW.glfwFocusWindow(pointer);
 	}
 	
 	/**

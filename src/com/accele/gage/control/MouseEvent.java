@@ -1,13 +1,16 @@
 package com.accele.gage.control;
 
-public class MouseEvent {
+import com.accele.gage.gfx.Window;
+
+public class MouseEvent extends ControlEvent {
 
 	private int button;
 	private int modifiers;
 	private double x;
 	private double y;
 	
-	public MouseEvent(int button, int modifiers, double x, double y) {
+	public MouseEvent(Window window, int button, int modifiers, double x, double y) {
+		super(window);
 		this.button = button;
 		this.modifiers = modifiers;
 		this.x = x;

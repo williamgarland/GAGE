@@ -26,7 +26,8 @@ public class Shader implements Indexable, Cleanable {
 	private int programId;
 	private Map<String, Integer> uniforms;
 	
-	public Shader(Resource<String> vertexSource, Resource<String> fragmentSource) {
+	public Shader(String registryId, Resource<String> vertexSource, Resource<String> fragmentSource) {
+		this.registryId = registryId;
 		this.uniforms = new HashMap<>();
 		try {
 			String vs = vertexSource.get();

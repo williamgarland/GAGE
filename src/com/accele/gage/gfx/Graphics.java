@@ -28,20 +28,20 @@ public class Graphics implements Cleanable {
 	private Shader texturedModelShader;
 	private boolean useViewMatrix;
 	
-	public Graphics(Registry<Model> modelRegistry, Registry<Font> fontRegistry) {
+	public Graphics(Registry<Model> modelRegistry, Registry<Font> fontRegistry, Registry<Shader> shaderRegistry) {
 		this.color = Color.WHITE;
-		this.font = new Font("gage.font.default", new Resource<>(ResourceLoaders.INTERNAL_FONT_LOADER, 
+		this.font = new Font("gage.default", new Resource<>(ResourceLoaders.INTERNAL_FONT_LOADER, 
 				new ResourceLocation(""), new java.awt.Font("Arial", 0, 30), true));
 		fontRegistry.register(font);
 		this.projectionMatrix = new Matrix4f().setOrtho2D(-1, 1, -1, 1);
-		this.rect = new Model("acl.rect", new Resource<>((src, args) -> new VBO[] {
+		this.rect = new Model("gage.rect", new Resource<>((src, args) -> new VBO[] {
 				new VBO(new Resource<>((src2, args2) -> new VBO.VBOMeta(GL15.GL_ARRAY_BUFFER, new float[] {
 						-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1, 0
 				}, GL15.GL_STATIC_DRAW), null))
 		}, null), new Resource<>((src, args) -> new IBO(new Resource<>((src2, args2) -> new IBO.IBOMeta(new int[] {
 				0, 1, 2, 2, 3, 0
 		}, GL15.GL_STATIC_DRAW), null)), null));
-		this.texturedRect = new Model("acl.textured_rect", new Resource<>((src, args) -> new VBO[] {
+		this.texturedRect = new Model("gage.textured_rect", new Resource<>((src, args) -> new VBO[] {
 				new VBO(new Resource<>((src2, args2) -> new VBO.VBOMeta(GL15.GL_ARRAY_BUFFER, new float[] {
 						-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1, 0
 				}, GL15.GL_STATIC_DRAW), null)),
@@ -63,18 +63,20 @@ public class Graphics implements Cleanable {
 				new VAO.VertexAttributeLayout(1, 2, GL11.GL_FLOAT, false, 0, 0, texturedRect.getBuffers()[1]),
 		}, null));
 		
-		rectShader = new Shader(new Resource<>((src, args) -> "#version 330 core\n"
+		rectShader = new Shader("gage.rect_shader", new Resource<>((src, args) -> "#version 330 core\n"
 				+ "layout(location = 0) in vec3 position; uniform mat4 model; uniform mat4 view; uniform mat4 projection;"
 				+ "void main() { gl_Position = projection * view * model * vec4(position, 1); }", null), 
 				new Resource<>((src, args) -> "#version 330 core\nout vec4 color; uniform vec4 frag_color;"
 						+ "void main() { color = frag_color; }", null));
 		
-		texturedRectShader = new Shader(new Resource<>((src, args) -> "#version 330 core\n"
+		texturedRectShader = new Shader("gage.textured_rect_shader", new Resource<>((src, args) -> "#version 330 core\n"
 				+ "layout(location = 0) in vec3 position; layout(location = 1) in vec2 textureCoords;"
 				+ "out vec2 frag_textureCoords; uniform mat4 model; uniform mat4 view; uniform mat4 projection; uniform vec2 offset; uniform vec2 size;"
 				+ "void main() { gl_Position = projection * view * model * vec4(position, 1); frag_textureCoords = textureCoords * size + offset; }", null), 
 				new Resource<>((src, args) -> "#version 330 core\n in vec2 frag_textureCoords; out vec4 color; uniform sampler2D sampler; uniform vec4 frag_color;"
 						+ "void main() { color = texture(sampler, frag_textureCoords) * frag_color; }", null));
+		shaderRegistry.register(rectShader);
+		shaderRegistry.register(texturedRectShader);
 		
 		this.viewMatrix = new Matrix4f();
 		this.useViewMatrix = true;
@@ -251,8 +253,6 @@ public class Graphics implements Cleanable {
 	
 	@Override
 	public void clean() {	
-		rectShader.clean();
-		texturedRectShader.clean();
 		rectVAO.clean();
 		texturedRectVAO.clean();
 	}

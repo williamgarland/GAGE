@@ -68,59 +68,57 @@ public class GAGE {
 	private static GAGE instance;
 	private static int[] customWindowHints;
 	
-	private Window window;
 	private Graphics graphics;
 	private GameConfiguration config;
-	private ControlHandler controlHandler;
 	private EntityHandler entityHandler;
 	private SoundHandler soundHandler;
 	private Random rand;
 	private Logger logger;
-	private Registry<GameState> stateRegistry;
 	private Registry<Texture> textureRegistry;
 	private Registry<Configuration> configurationRegistry;
 	private Registry<Font> fontRegistry;
 	private Registry<TileMap> tileMapRegistry;
-	private Registry<ControlListener> controlListenerRegistry;
-	private Registry<KeyListener> keyListenerRegistry;
-	private Registry<MouseListener> mouseListenerRegistry;
 	private Registry<Shader> shaderRegistry;
 	private Registry<Model> modelRegistry;
 	private Registry<Animation> animationRegistry;
 	private Registry<SoundBuffer> soundBufferRegistry;
 	private Registry<SoundSource> soundSourceRegistry;
-	private GameState currentState;
+	private Registry<GAGEContext> contextRegistry;
 	private boolean running;
 	private Deque<Consumer<GAGE>> deferredEvents;
 	double ticksPerSecond;
+	
+	private GAGEContext mainContext;
+	private GAGEContext currentContext;
 	
 	private GAGE(int width, int height, String title) {
 		performChecks();
 		
 		System.gc();
 		
-		this.window = new Window(width, height, title, customWindowHints);
+		GAGEContext mainContext = new GAGEContext(width, height, title, customWindowHints, false);
+		
 		this.soundHandler = new SoundHandler();
 		this.modelRegistry = new Registry<>();
 		this.fontRegistry = new Registry<>();
-		this.graphics = new Graphics(modelRegistry, fontRegistry);
+		this.shaderRegistry = new Registry<>();
+		this.graphics = new Graphics(modelRegistry, fontRegistry, shaderRegistry);
 		this.config = new GameConfiguration();
-		this.stateRegistry = new Registry<>();
 		this.textureRegistry = new Registry<>();
 		this.configurationRegistry = new Registry<>();
 		this.tileMapRegistry = new Registry<>();
-		this.controlListenerRegistry = new Registry<>();
-		this.keyListenerRegistry = new Registry<>();
-		this.mouseListenerRegistry = new Registry<>();
-		this.shaderRegistry = new Registry<>();
 		this.animationRegistry = new Registry<>();
 		this.soundBufferRegistry = new Registry<>();
 		this.soundSourceRegistry = new Registry<>();
-		this.controlHandler = new ControlHandler(controlListenerRegistry, keyListenerRegistry, mouseListenerRegistry, window.getPointer());
+		this.contextRegistry = new Registry<>();
 		this.entityHandler = new EntityHandler(config);
 		this.deferredEvents = new ArrayDeque<>();
 		this.rand = new Random();
 		this.logger = new Logger(System.out, "[" + this.getClass().getCanonicalName() + "]");
+		
+		contextRegistry.register(mainContext);
+		this.mainContext = mainContext;
+		this.currentContext = mainContext;
 	}
 	
 	private void performChecks() {
@@ -129,7 +127,7 @@ public class GAGE {
 	}
 	
 	private void performStartChecks() {
-		if (currentState == null)
+		if (mainContext.getCurrentState() == null)
 			throw new RuntimeException("There is no GameState loaded in the current context.");
 	}
 	
@@ -169,8 +167,7 @@ public class GAGE {
 				int loops = 0;
 				
 				while (getGameTime() > nextTick && loops < maxFrameskip) {
-					controlHandler.tick();
-					currentState.tick();
+					currentContext.tick();
 					
 					nextTick += skipTicks;
 					loops++;
@@ -178,9 +175,7 @@ public class GAGE {
 				
 				double interpolation = (getGameTime() + skipTicks - nextTick) / skipTicks;
 				
-				window.onCycleBegin();
-				currentState.render(graphics, interpolation);
-				window.onCycleEnd();
+				currentContext.render(graphics, interpolation);
 				
 				while (!deferredEvents.isEmpty())
 					deferredEvents.poll().accept(this);
@@ -198,25 +193,20 @@ public class GAGE {
 	}
 	
 	private void clean() {
-		currentState.exit(null);
+		contextRegistry.clean();
 		entityHandler.clean();
 		graphics.clean();
 		animationRegistry.clean();
 		configurationRegistry.clean();
-		controlListenerRegistry.clean();
 		fontRegistry.clean();
-		keyListenerRegistry.clean();
 		modelRegistry.clean();
-		mouseListenerRegistry.clean();
 		shaderRegistry.clean();
 		soundBufferRegistry.clean();
 		soundSourceRegistry.clean();
-		stateRegistry.clean();
 		textureRegistry.clean();
 		tileMapRegistry.clean();
-		controlHandler.clean();
-		window.clean();
 		soundHandler.clean();
+		mainContext.getWindow().clean();
 		
 		instance = null;
 		System.gc();
@@ -250,15 +240,6 @@ public class GAGE {
 	}
 	
 	/**
-	 * Returns the instance of {@link com.accele.gage.gfx.Window Window} used by GAGE.
-	 * 
-	 * @return	the window used by the running instance of the engine
-	 */
-	public Window getWindow() {
-		return window;
-	}
-	
-	/**
 	 * Returns the time in seconds since the engine was started.
 	 * 
 	 * <p>
@@ -279,15 +260,6 @@ public class GAGE {
 	 */
 	public GameConfiguration getConfig() {
 		return config;
-	}
-	
-	/**
-	 * Returns the instance of {@link com.accele.gage.control.ControlHandler ControlHandler} used by GAGE.
-	 * 
-	 * @return	the control handler used by the running instance of the engine
-	 */
-	public ControlHandler getControlHandler() {
-		return controlHandler;
 	}
 	
 	/**
@@ -333,16 +305,6 @@ public class GAGE {
 	
 	/**
 	 * Returns the {@link com.accele.gage.Registry Registry} used by GAGE 
-	 * for registering instances of {@link com.accele.gage.state.GameState GameState}.
-	 * 
-	 * @return	the state registry used by the running instance of the engine
-	 */
-	public Registry<GameState> getStateRegistry() {
-		return stateRegistry;
-	}
-	
-	/**
-	 * Returns the {@link com.accele.gage.Registry Registry} used by GAGE 
 	 * for registering instances of {@link com.accele.gage.gfx.Texture Texture}.
 	 * 
 	 * @return	the texture registry used by the running instance of the engine
@@ -379,36 +341,6 @@ public class GAGE {
 	 */
 	public Registry<TileMap> getTileMapRegistry() {
 		return tileMapRegistry;
-	}
-	
-	/**
-	 * Returns the {@link com.accele.gage.Registry Registry} used by GAGE 
-	 * for registering instances of {@link com.accele.gage.control.ControlListener ControlListener}.
-	 * 
-	 * @return	the control listener registry used by the running instance of the engine
-	 */
-	public Registry<ControlListener> getControlListenerRegistry() {
-		return controlListenerRegistry;
-	}
-	
-	/**
-	 * Returns the {@link com.accele.gage.Registry Registry} used by GAGE 
-	 * for registering instances of {@link com.accele.gage.control.KeyListener KeyListener}.
-	 * 
-	 * @return	the key listener registry used by the running instance of the engine
-	 */
-	public Registry<KeyListener> getKeyListenerRegistry() {
-		return keyListenerRegistry;
-	}
-	
-	/**
-	 * Returns the {@link com.accele.gage.Registry Registry} used by GAGE 
-	 * for registering instances of {@link com.accele.gage.control.MouseListener MouseListener}.
-	 * 
-	 * @return	the mouse listener registry used by the running instance of the engine
-	 */
-	public Registry<MouseListener> getMouseListenerRegistry() {
-		return mouseListenerRegistry;
 	}
 	
 	/**
@@ -462,6 +394,16 @@ public class GAGE {
 	}
 	
 	/**
+	 * Returns the {@link com.accele.gage.Registry Registry} used by GAGE 
+	 * for registering instances of {@link com.accele.gage.GAGEContext GAGEContext}.
+	 * 
+	 * @return	the context registry used by the running instance of the engine
+	 */
+	public Registry<GAGEContext> getContextRegistry() {
+		return contextRegistry;
+	}
+	
+	/**
 	 * Returns the instance of {@link com.accele.gage.gfx.Graphics Graphics} used by GAGE.
 	 * <p>
 	 * This method is intended to yield the {@code Graphics} instance for retrieving and modifying graphical settings only; 
@@ -484,49 +426,247 @@ public class GAGE {
 	}
 	
 	/**
-	 * Returns the current state used by GAGE. If no state is set, this method will throw an {@link java.lang.IllegalStateException IllegalStateException}.
+	 * Returns the primary context used by GAGE.
 	 * 
-	 * @return the instance of {@link com.accele.gage.state.GameState GameState} used by the running instance of the engine
-	 * @throws IllegalStateException	if no instance of {@code GameState} is loaded in the current context
+	 * @return the primary context used by GAGE
+	 */
+	public GAGEContext getMainContext() {
+		return mainContext;
+	}
+	
+	/**
+	 * Returns the current context used by GAGE.
+	 * 
+	 * @return the current context used by GAGE
+	 */
+	public GAGEContext getCurrentContext() {
+		return currentContext;
+	}
+	
+	/**
+	 * Sets the current context to the context with the specified {@code registryId}.
+	 * <p>
+	 * When switching contexts, this method will first detach the previous context by calling {@link com.accele.gage.gfx.Window#detachContext() detachContext()} 
+	 * and then attach the new one by calling {@link com.accele.gage.gfx.Window#attachContext() attachContext()}. This is required by GLFW and OpenGL
+	 * because only one context may be set at any one time.
+	 * </p>
+	 * 
+	 * @param registryId	the registry ID of the target context
+	 */
+	public void setCurrentContext(String registryId) {
+		GAGEContext newContext = contextRegistry.getEntry(registryId);
+		currentContext.getWindow().detachContext();
+		currentContext = newContext;
+		currentContext.getWindow().attachContext();
+	}
+	
+	/**
+	 * Returns the {@link com.accele.gage.control.ControlHandler ControlHandler} used by the current context.
+	 * <p>
+	 * This is a convenience method for accessing the specified resource contained in the current context.
+	 * To directly access this resource, among others, use {@link #getCurrentContext() getCurrentContext()}.
+	 * </p>
+	 * 
+	 * @return the {@code ControlHandler} used by the current context
+	 */
+	public ControlHandler getControlHandler() {
+		return currentContext.getControlHandler();
+	}
+	
+	/**
+	 * Returns the {@link com.accele.gage.Registry Registry} used by the current context 
+	 * for registering instances of {@link com.accele.gage.control.ControlListener ControlListener}.
+	 * <p>
+	 * This is a convenience method for accessing the specified resource contained in the current context.
+	 * To directly access this resource, among others, use {@link #getCurrentContext() getCurrentContext()}.
+	 * </p>
+	 * 
+	 * @return the control listener registry used by the current context
+	 */
+	public Registry<ControlListener> getControlListenerRegistry() {
+		return currentContext.getControlListenerRegistry();
+	}
+	
+	/**
+	 * Returns the {@link com.accele.gage.Registry Registry} used by the current context 
+	 * for registering instances of {@link com.accele.gage.control.KeyListener KeyListener}.
+	 * <p>
+	 * This is a convenience method for accessing the specified resource contained in the current context.
+	 * To directly access this resource, among others, use {@link #getCurrentContext() getCurrentContext()}.
+	 * </p>
+	 * 
+	 * @return the key listener registry used by the current context
+	 */
+	public Registry<KeyListener> getKeyListenerRegistry() {
+		return currentContext.getKeyListenerRegistry();
+	}
+	
+	/**
+	 * Returns the {@link com.accele.gage.Registry Registry} used by the current context 
+	 * for registering instances of {@link com.accele.gage.control.MouseListener MouseListener}.
+	 * <p>
+	 * This is a convenience method for accessing the specified resource contained in the current context.
+	 * To directly access this resource, among others, use {@link #getCurrentContext() getCurrentContext()}.
+	 * </p>
+	 * 
+	 * @return the mouse listener registry used by the current context
+	 */
+	public Registry<MouseListener> getMouseListenerRegistry() {
+		return currentContext.getMouseListenerRegistry();
+	}
+	
+	/**
+	 * Returns the {@link com.accele.gage.Registry Registry} used by the current context 
+	 * for registering instances of {@link com.accele.gage.state.GameState GameState}.
+	 * <p>
+	 * This is a convenience method for accessing the specified resource contained in the current context.
+	 * To directly access this resource, among others, use {@link #getCurrentContext() getCurrentContext()}.
+	 * </p>
+	 * 
+	 * @return the state registry used by the current context
+	 */
+	public Registry<GameState> getStateRegistry() {
+		return currentContext.getStateRegistry();
+	}
+	
+	/**
+	 * Returns the {@link com.accele.gage.gfx.Window Window} used by the current context.
+	 * <p>
+	 * This is a convenience method for accessing the specified resource contained in the current context.
+	 * To directly access this resource, among others, use {@link #getCurrentContext() getCurrentContext()}.
+	 * </p>
+	 * 
+	 * @return the {@code Window} used by the current context
+	 */
+	public Window getWindow() {
+		return currentContext.getWindow();
+	}
+	
+	/**
+	 * Returns the current {@link com.accele.gage.state.GameState GameState} used by the current context.
+	 * <p>
+	 * This is a convenience method for accessing the specified resource contained in the current context.
+	 * To directly access this resource, among others, use {@link #getCurrentContext() getCurrentContext()}.
+	 * </p>
+	 * 
+	 * @return the current {@code GameState} used by the current context
 	 */
 	public GameState getCurrentState() {
-		if (currentState == null)
-			throw new IllegalStateException("There is no GameState loaded in the current context.");
-		return currentState;
+		return currentContext.getCurrentState();
 	}
 	
 	/**
-	 * Sets the state to be used by the engine. If the specified state is not registered in the state registry, 
-	 * this method will throw an {@link java.lang.IllegalArgumentException IllegalArgumentException}.
+	 * Sets the state to be used by the current context.
+	 * <p>
+	 * If the specified state is not registered in the state registry, this method will throw an {@code IllegalArgumentException}.
+	 * This method will call the {@link #exit() exit()} method of the currently set {@code GameState} (if applicable) 
+	 * and the {@link #init() init()} method of the new GameState.
+	 * </p>
+	 * <p>
+	 * This is a convenience method for accessing the specified resource contained in the current context.
+	 * To directly access this resource, among others, use {@link #getCurrentContext() getCurrentContext()}.
+	 * </p>
 	 * 
-	 * @param registryId	the registry id of the {@link com.accele.gage.state.GameState GameState} to use
-	 * @param exitOld	whether the {@link com.accele.gage.state.GameState#exit exit()} method of the currently set {@code GameState} should be called.
-	 * If no state is currently loaded, setting this to {@code true} will have no effect.
-	 * @param initNew	whether the {@link com.accele.gage.state.GameState#init init()} method of the new {@code GameState} should be called
-	 * 
-	 * @throws IllegalArgumentException		if the specified {@code GameState} is not registered in the state registry
-	 */
-	public void setCurrentState(String registryId, boolean exitOld, boolean initNew) {
-		GameState newState = stateRegistry.getEntry(registryId);
-		if (currentState != null && exitOld)
-			currentState.exit(newState);
-		if (initNew)
-			newState.init();
-		currentState = newState;
-	}
-	
-	/**
-	 * Sets the state to be used by the engine. If the specified state is not registered in the state registry, 
-	 * this method will throw an {@link java.lang.IllegalArgumentException IllegalArgumentException}.
-	 * This method will call the {@link com.accele.gage.state.GameState#exit exit()} method of the currently set {@code GameState}
-	 * (if applicable) and the {@link com.accele.gage.state.GameState#init init()} method of the new {@code GameState}.
-	 * 
-	 * @param registryId	the registry id of the {@link com.accele.gage.state.GameState GameState} to use
-	 * 
-	 * @throws IllegalArgumentException		if the specified {@code GameState} is not registered in the state registry
+	 * @param registryId	the registry ID of the target state
 	 */
 	public void setCurrentState(String registryId) {
-		setCurrentState(registryId, true, true);
+		currentContext.setCurrentState(registryId, true, true);
+	}
+	
+	/**
+	 * Sets the state to be used by the current context.
+	 * <p>
+	 * If the specified state is not registered in the state registry, this method will throw an {@code IllegalArgumentException}.
+	 * </p>
+	 * <p>
+	 * This is a convenience method for accessing the specified resource contained in the current context.
+	 * To directly access this resource, among others, use {@link #getCurrentContext() getCurrentContext()}.
+	 * </p>
+	 * 
+	 * @param registryId	the registry ID of the target state
+	 * @param exitOld		whether the {@link #exit() exit()} method of the currently set {@code GameState} should be called. If no state is currently loaded, setting this to true will have no effect.
+	 * @param initNew		whether the {@link #init() init()} method of the new {@code GameState} should be called
+	 */
+	public void setCurrentState(String registryId, boolean exitOld, boolean initNew) {
+		currentContext.setCurrentState(registryId, exitOld, initNew);
+	}
+	
+	/**
+	 * Sets the current context to be the main context.
+	 * <p>
+	 * This is a convenience method for setting the main context and is equivalent to calling {@code setCurrentContext("gage.main")}.
+	 * </p>
+	 */
+	public void useMainContext() {
+		if (currentContext == mainContext)
+			return;
+		currentContext.getWindow().detachContext();
+		currentContext = mainContext;
+		currentContext.getWindow().attachContext();
+	}
+	
+	/**
+	 * Sets the current context and the state to be used by the specified context.
+	 * <p>
+	 * If the specified context is not registered in the context registry or
+	 * if the specified state is not registered in the context's state registry, this method will throw an {@code IllegalArgumentException}.
+	 * </p>
+	 * <p>
+	 * This is a convenience method for setting the context and changing the state. It is designed to be used when switching between states that are in different contexts.
+	 * This method is equivalent to calling:
+	 * </p>
+	 * <pre>
+	 * GAGEContext newContext = GAGE.getInstance().getContextRegistry().getEntry(contextRegistryId);
+	 * GameState newState = newContext.getStateRegistry().getEntry(stateRegistryId);
+	 * 
+	 * if (exitOld)
+	 * 	GAGE.getInstance().getCurrentState().exit(newState);
+	 * GAGE.getInstance().setCurrentContext(contextRegistryId);
+	 * GAGE.getInstance().setCurrentState(stateRegistryId, false, initNew);
+	 * </pre>
+	 * 
+	 * @param contextRegistryId	the registry ID of the target context
+	 * @param stateRegistryId	the registry ID of the target state
+	 * @param exitOld			whether the {@link #exit() exit()} method of the currently set {@code GameState} should be called. If no state is currently loaded, setting this to true will have no effect.
+	 * @param initNew			whether the {@link #init() init()} method of the new {@code GameState} should be called
+	 */
+	public void setCurrentState(String contextRegistryId, String stateRegistryId, boolean exitOld, boolean initNew) {
+		GAGEContext newContext = contextRegistry.getEntry(contextRegistryId);
+		GameState newState = newContext.getStateRegistry().getEntry(stateRegistryId);
+		if (exitOld)
+			currentContext.getCurrentState().exit(newState);
+		currentContext.getWindow().detachContext();
+		newContext.getWindow().attachContext();
+		if (initNew)
+			newState.init();
+		newContext.currentState = newState;
+		currentContext = newContext;
+	}
+	
+	/**
+	 * Sets the current context and the state to be used by the specified context.
+	 * <p>
+	 * If the specified context is not registered in the context registry or
+	 * if the specified state is not registered in the context's state registry, this method will throw an {@code IllegalArgumentException}.
+	 * </p>
+	 * <p>
+	 * This is a convenience method for setting the context and changing the state. It is designed to be used when switching between states that are in different contexts.
+	 * This method is equivalent to calling:
+	 * </p>
+	 * <pre>
+	 * GAGEContext newContext = GAGE.getInstance().getContextRegistry().getEntry(contextRegistryId);
+	 * GameState newState = newContext.getStateRegistry().getEntry(stateRegistryId);
+	 * 
+	 * GAGE.getInstance().getCurrentState().exit(newState);
+	 * GAGE.getInstance().setCurrentContext(contextRegistryId);
+	 * GAGE.getInstance().setCurrentState(stateRegistryId, false, true);
+	 * </pre>
+	 * 
+	 * @param contextRegistryId	the registry ID of the target context
+	 * @param stateRegistryId	the registry ID of the target state
+	 */
+	public void setCurrentState(String contextRegistryId, String stateRegistryId) {
+		setCurrentState(contextRegistryId, stateRegistryId, true, true);
 	}
 	
 	/**

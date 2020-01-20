@@ -3,9 +3,9 @@ package com.accele.gage.control;
 import org.lwjgl.glfw.GLFW;
 
 import com.accele.gage.Cleanable;
-import com.accele.gage.GAGE;
 import com.accele.gage.Registry;
 import com.accele.gage.Tickable;
+import com.accele.gage.gfx.Window;
 
 public class ControlHandler implements Tickable, Cleanable {
 
@@ -18,43 +18,45 @@ public class ControlHandler implements Tickable, Cleanable {
 	private static final int KEY_RELEASED = 2;
 	private static final int KEY_HELD = 3;
 	
+	private Window window;
 	private int[] keys;
 	private int modifiers;
 	private double mx;
 	private double my;
 	
 	public ControlHandler(Registry<ControlListener> controlListenerRegistry,
-			Registry<KeyListener> keyListenerRegistry, Registry<MouseListener> mouseListenerRegistry, long windowPointer) {
+			Registry<KeyListener> keyListenerRegistry, Registry<MouseListener> mouseListenerRegistry, Window window) {
+		this.window = window;
 		this.controlListenerRegistry = controlListenerRegistry;
 		this.keyListenerRegistry = keyListenerRegistry;
 		this.mouseListenerRegistry = mouseListenerRegistry;
-		GLFW.glfwSetKeyCallback(windowPointer, (window, key, scancode, action, mods) -> {
+		GLFW.glfwSetKeyCallback(window.getPointer(), (windowPointer, key, scancode, action, mods) -> {
 			if (key != -1) {
 				keys[key] = action == GLFW.GLFW_RELEASE ? KEY_RELEASED : action == GLFW.GLFW_PRESS ? KEY_PRESSED : keys[key];
 				modifiers = mods;
 				keyListenerRegistry.getEntries().forEach(kl -> {
 					if (kl.canReceiveEvents() && action == GLFW.GLFW_PRESS)
-						kl.keyPressed(new KeyEvent(key, GLFW.glfwGetKeyScancode(key), modifiers));
+						kl.keyPressed(new KeyEvent(window, key, GLFW.glfwGetKeyScancode(key), modifiers));
 					else if (kl.canReceiveEvents() && action == GLFW.GLFW_RELEASE)
-						kl.keyReleased(new KeyEvent(key, GLFW.glfwGetKeyScancode(key), modifiers));
+						kl.keyReleased(new KeyEvent(window, key, GLFW.glfwGetKeyScancode(key), modifiers));
 				});
 			}
 		});
-		GLFW.glfwSetMouseButtonCallback(windowPointer, (window, button, action, mods) -> {
-			MouseEvent event = new MouseEvent(button, mods, mx, my);
+		GLFW.glfwSetMouseButtonCallback(window.getPointer(), (windowPointer, button, action, mods) -> {
+			MouseEvent event = new MouseEvent(window, button, mods, mx, my);
 			if (action == GLFW.GLFW_PRESS)
 				mouseListenerRegistry.getEntries().forEach(ml -> { if (ml.canReceiveEvents()) ml.mouseButtonPressed(event); });
 			else if (action == GLFW.GLFW_RELEASE)
 				mouseListenerRegistry.getEntries().forEach(ml -> { if (ml.canReceiveEvents()) ml.mouseButtonReleased(event); });
 		});
-		GLFW.glfwSetCursorPosCallback(windowPointer, (window, x, y) -> {
-			mx = convertRange(x / GAGE.getInstance().getWindow().getWidth(), 0, 1, -1, 1);
-			my = convertRange(y / GAGE.getInstance().getWindow().getHeight(), 0, 1, -1, 1) * -1;
-			MouseMoveEvent event = new MouseMoveEvent(mx, my);
+		GLFW.glfwSetCursorPosCallback(window.getPointer(), (windowPointer, x, y) -> {
+			mx = convertRange(x / window.getWidth(), 0, 1, -1, 1);
+			my = convertRange(y / window.getHeight(), 0, 1, -1, 1) * -1;
+			MouseMoveEvent event = new MouseMoveEvent(window, mx, my);
 			mouseListenerRegistry.getEntries().forEach(ml -> { if (ml.canReceiveEvents()) ml.mouseMoved(event); });
 		});
-		GLFW.glfwSetScrollCallback(windowPointer, (window, x, y) -> {
-			MouseWheelEvent event = new MouseWheelEvent(x, y);
+		GLFW.glfwSetScrollCallback(window.getPointer(), (windowPointer, x, y) -> {
+			MouseWheelEvent event = new MouseWheelEvent(window, x, y);
 			mouseListenerRegistry.getEntries().forEach(ml -> { if (ml.canReceiveEvents()) ml.mouseWheelMoved(event); });
 		});
 		this.keys = new int[GLFW.GLFW_KEY_LAST];
@@ -83,7 +85,7 @@ public class ControlHandler implements Tickable, Cleanable {
 				keys[i] = KEY_INACTIVE;
 			} else if (keys[i] == KEY_HELD) {
 				final int key = i;
-				keyListenerRegistry.getEntries().forEach(kl -> { if (kl.canReceiveEvents()) kl.keyHeld(new KeyEvent(key, GLFW.glfwGetKeyScancode(key), modifiers)); });
+				keyListenerRegistry.getEntries().forEach(kl -> { if (kl.canReceiveEvents()) kl.keyHeld(new KeyEvent(window, key, GLFW.glfwGetKeyScancode(key), modifiers)); });
 			}
 		}
 	}

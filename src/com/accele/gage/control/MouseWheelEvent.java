@@ -1,11 +1,14 @@
 package com.accele.gage.control;
 
-public class MouseWheelEvent {
+import com.accele.gage.gfx.Window;
+
+public class MouseWheelEvent extends ControlEvent {
 
 	private double xOffset;
 	private double yOffset;
 	
-	public MouseWheelEvent(double xOffset, double yOffset) {
+	public MouseWheelEvent(Window window, double xOffset, double yOffset) {
+		super(window);
 		this.xOffset = xOffset;
 		this.yOffset = yOffset;
 	}
