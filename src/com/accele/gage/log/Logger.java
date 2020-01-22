@@ -4,6 +4,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 
 import com.accele.gage.Cleanable;
+import com.accele.gage.GAGE;
 
 public class Logger implements Cleanable {
 
@@ -18,13 +19,15 @@ public class Logger implements Cleanable {
 	private String getCaller() {
 		StackTraceElement[] elements = Thread.currentThread().getStackTrace();
 		int caller = 2;
-		while (elements[caller].getClassName().equals(this.getClass().getCanonicalName()))
+		while (elements[caller].getClassName().equals(this.getClass().getSimpleName()))
 			caller++;
 		return elements[caller].getClassName() + ":" + elements[caller].getMethodName() + ":" + elements[caller].getLineNumber();
 	}
 	
 	public void log(String prefix, LogLevel level, String message) {
-		destination.println(prefix + " [" + getCaller() + "] [" + level.getDisplayName() + "]: " + message);
+		String ctx = GAGE.getInstance().getCurrentContext().getRegistryId();
+		String str = prefix + " [" + ctx + "] [" + getCaller() + "] [" + level.getDisplayName() + "]: " + message;
+		destination.println(str.strip());
 	}
 	
 	public void info(String prefix, String message) {

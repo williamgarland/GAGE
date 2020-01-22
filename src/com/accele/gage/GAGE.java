@@ -110,7 +110,7 @@ public class GAGE {
 		this.contextRegistry = new Registry<>();
 		this.entityHandler = new EntityHandler(config);
 		this.rand = new Random();
-		this.logger = new Logger(System.out, "[" + this.getClass().getCanonicalName() + "]");
+		this.logger = new Logger(System.out, "");
 		
 		contextRegistry.register(mainContext);
 		this.mainContext = mainContext;
