@@ -19,7 +19,7 @@ public class Logger implements Cleanable {
 	private String getCaller() {
 		StackTraceElement[] elements = Thread.currentThread().getStackTrace();
 		int caller = 2;
-		while (elements[caller].getClassName().equals(this.getClass().getSimpleName()))
+		while (elements[caller].getClassName().equals(this.getClass().getCanonicalName()))
 			caller++;
 		return elements[caller].getClassName() + ":" + elements[caller].getMethodName() + ":" + elements[caller].getLineNumber();
 	}
