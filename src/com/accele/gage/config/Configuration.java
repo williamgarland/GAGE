@@ -70,6 +70,38 @@ public class Configuration implements Indexable {
 	}
 	
 	/**
+	 * Adds the specified properties to the {@code Configuration}.
+	 * 
+	 * <p>
+	 * This operation will fail if the {@code Configuration} does not allow adding properties
+	 * or if it already contains any of the specified properties.
+	 * </p>
+	 * 
+	 * @param properties						the properties to add
+	 * @throws UnsupportedOperationException	if the {@code Configuration} does not allow adding properties
+	 * @throws IllegalArgumentException			if the {@code Configuration} already contains any of the specified properties
+	 */
+	public void addAll(Map<String, Object> properties) {
+		for (Map.Entry<String, Object> e : properties.entrySet()) {
+			add(e.getKey(), e.getValue());
+		}
+	}
+	
+	/**
+	 * Removes all properties from the {@code Configuration}.
+	 * <p>
+	 * This operation will fail if the {@code Configuration} does not allow removing properties.
+	 * </p>
+	 * 
+	 * @throws UnsupportedOperationException	if the {@code Configuration} does not allow removing properties
+	 */
+	public void clear() {
+		if (!canRemoveProperties)
+			throw new UnsupportedOperationException("Removing properties from configuration \"" + registryId + "\" is not allowed.");
+		properties.clear();
+	}
+	
+	/**
 	 * Adds the specified key-value pair to the {@code Configuration}.
 	 * 
 	 * <p>
