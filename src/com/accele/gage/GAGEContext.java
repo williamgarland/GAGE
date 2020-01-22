@@ -71,9 +71,6 @@ public class GAGEContext implements Indexable, Tickable, Renderable, Cleanable {
 	public void clean() {
 		currentState.exit(null);
 		stateRegistry.clean();
-		controlListenerRegistry.clean();
-		keyListenerRegistry.clean();
-		mouseListenerRegistry.clean();
 		controlHandler.clean();
 	}
 	
