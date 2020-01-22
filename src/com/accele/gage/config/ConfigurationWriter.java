@@ -23,17 +23,18 @@ import com.accele.gage.Resource;
  */
 public class ConfigurationWriter {
 
-	private String registryId;
+	private Configuration config;
 	private Resource<OutputStream> out;
 	
 	/**
-	 * Creates a new {@link com.accele.gage.config.ConfigurationWriter ConfigurationWriter} using a {@link com.accele.gage.config.Configuration Configuration} 
-	 * with the specified {@code registryId} and exports them to the specified external destination.
-	 * @param registryId the {@code registryId} of the target {@code Configuration}
+	 * Creates a new {@link com.accele.gage.config.ConfigurationWriter ConfigurationWriter} using the properties 
+	 * from the specified {@link com.accele.gage.config.Configuration Configuration} 
+	 * and exports them to the specified external destination.
+	 * @param config the {@code Configuration} to write
 	 * @param out the external destination to write the {@code Configuration} properties to
 	 */
-	public ConfigurationWriter(String registryId, Resource<OutputStream> out) {
-		this.registryId = registryId;
+	public ConfigurationWriter(Configuration config, Resource<OutputStream> out) {
+		this.config = config;
 		this.out = out;
 	}
 	
@@ -48,7 +49,6 @@ public class ConfigurationWriter {
 	 */
 	public void write() throws GAGEException {
 		try {
-			Configuration config = GAGE.getInstance().getConfigurationRegistry().getEntry(registryId);
 			Properties props = new Properties();
 			Map<String, Object> configProps = config.getProperties();
 			props.setProperty("__registryId__", config.getRegistryId());

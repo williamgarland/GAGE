@@ -6,9 +6,12 @@ import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -596,5 +599,17 @@ public class ResourceLoaders {
 
 		return buffer;
 	}
+	
+	public static final ResourceLoader<InputStream> CONFIGURATION_READER_LOADER = (src, args) -> {
+		return src.getInputStream();
+	};
+	
+	public static final ResourceLoader<OutputStream> CONFIGURATION_WRITER_LOADER = (src, args) -> {
+		try {
+			return new FileOutputStream(src.toPath().toFile());
+		} catch (FileNotFoundException e) {
+			throw new GAGEException(e);
+		}
+	};
 
 }

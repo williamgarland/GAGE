@@ -64,4 +64,30 @@ public class ConfigurationReader {
 		}
 	}
 	
+	/**
+	 * Retrieves a list of user-defined properties, loads them into the specified {@link com.accele.gage.config.Configuration Configuration}, 
+	 * and returns the {@code Configuration}.
+	 * <p>
+	 * The reader expects a minimum of four built-in properties to be defined: {@code __registryId__}, {@code __canSet__}, {@code __canAdd__}, and {@code __canRemove__}.
+	 * These properties are intrinsic to every {@code Configuration} instance and are required to create new {@code Configuration} instances.
+	 * </p>
+	 * @param dest the destination {@code Configuration} used to store the properties
+	 * @return the {@code Configuration} created from the imported properties
+	 * @throws GAGEException if the reader fails to read the properties from the external source
+	 * @see com.accele.gage.GAGE#getConfigurationRegistry() getConfigurationRegistry()
+	 */
+	public Configuration read(Configuration dest) throws GAGEException {
+		try {
+			Properties props = new Properties();
+			props.load(src.get());
+			for (Object key : props.keySet()) {
+				if (!key.toString().startsWith("__") && !key.toString().endsWith("__"))
+				dest.add(key.toString(), props.getProperty(key.toString()));
+			}
+			return dest;
+		} catch (IOException e) {
+			throw new GAGEException(e);
+		}
+	}
+	
 }
