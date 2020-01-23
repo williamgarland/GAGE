@@ -1,20 +1,55 @@
 package com.accele.gage.sfx;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.lwjgl.openal.AL10;
 
 import com.accele.gage.Cleanable;
 import com.accele.gage.GAGE;
 import com.accele.gage.Indexable;
+import com.accele.gage.Tickable;
+import com.accele.gage.callbacks.SoundSourceCallback;
 
-public class SoundSource implements Indexable, Cleanable {
+public class SoundSource implements Indexable, Tickable, Cleanable {
 
 	private String registryId;
 	private int sourceId;
 	private SoundBuffer linkedSound;
+	private List<SoundSourceCallback> playbackFinishedCallbacks;
+	private int state;
 	
 	public SoundSource(String registryId) {
 		this.registryId = registryId;
 		this.sourceId = AL10.alGenSources();
+		this.playbackFinishedCallbacks = new ArrayList<>();
+	}
+	
+	/**
+	 * Adds a playback-finished callback to this {@code SoundSource}. The callback will be invoked whenever the source finishes playback of its linked {@code SoundBuffer}.
+	 * 
+	 * @param callback the {@link com.accele.gage.callbacks.SoundSourceCallback SoundSourceCallback} to add
+	 */
+	public void addPlaybackFinishedCallback(SoundSourceCallback callback) {
+		playbackFinishedCallbacks.add(callback);
+	}
+	
+	/**
+	 * This method is not designed to be called at the same rate as normal tick methods; 
+	 * it should be called as many times as possible per second in order to ensure events are properly handled.
+	 */
+	@Override
+	public void tick() {
+		updateSourceState();
+	}
+	
+	private void updateSourceState() {
+		int newState = AL10.alGetSourcei(sourceId, AL10.AL_SOURCE_STATE);
+		if (state != newState && newState == AL10.AL_STOPPED) {
+			state = newState;
+			playbackFinishedCallbacks.forEach(c -> c.call(this));
+		} else
+			state = newState;
 	}
 	
 	public void linkSound(String registryId) {
@@ -108,6 +143,10 @@ public class SoundSource implements Indexable, Cleanable {
 	
 	public int getSourceId() {
 		return sourceId;
+	}
+	
+	public int getState() {
+		return state;
 	}
 	
 }

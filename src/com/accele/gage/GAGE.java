@@ -174,6 +174,8 @@ public class GAGE {
 				currentContext.render(graphics, interpolation);
 				currentContext.getWindow().pollEvents();
 				
+				soundSourceRegistry.getEntries().forEach(e -> e.tick());
+				
 				contextRegistry.getEntries().forEach(ctx -> {
 					if (ctx.doBackgroundRendering())
 						hotSwapContext(ctx.getRegistryId(), gage -> ctx.render(graphics, interpolation));
