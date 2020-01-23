@@ -35,6 +35,17 @@ public class SoundSource implements Indexable, Tickable, Cleanable {
 	}
 	
 	/**
+	 * Removes the specified playback-finished callback from this {@code SoundSource}, if it was already added.
+	 * Returns {@code true} if the callback was successfully removed and {@code false} otherwise.
+	 * 
+	 * @param callback the {@link com.accele.gage.callbacks.SoundSourceCallback SoundSourceCallback} to remove
+	 * @return whether the callback was removed from the {@code SoundSource}
+	 */
+	public boolean removePlaybackFinishedCallback(SoundSourceCallback callback) {
+		return playbackFinishedCallbacks.remove(callback);
+	}
+	
+	/**
 	 * This method is not designed to be called at the same rate as normal tick methods; 
 	 * it should be called as many times as possible per second in order to ensure events are properly handled.
 	 */
