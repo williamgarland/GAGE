@@ -566,8 +566,8 @@ public class GAGE {
 	 * Sets the state to be used by the current context.
 	 * <p>
 	 * If the specified state is not registered in the state registry, this method will throw an {@code IllegalArgumentException}.
-	 * This method will call the {@link #exit() exit()} method of the currently set {@code GameState} (if applicable) 
-	 * and the {@link #init() init()} method of the new GameState.
+	 * This method will call the {@link com.accele.gage.state.GameState#exit(GameState) exit(GameState)} method of the currently set {@code GameState} (if applicable) 
+	 * and the {@link com.accele.gage.state.GameState#init(GameState) init(GameState)} method of the new GameState.
 	 * </p>
 	 * <p>
 	 * This is a convenience method for accessing the specified resource contained in the current context.
@@ -591,8 +591,8 @@ public class GAGE {
 	 * </p>
 	 * 
 	 * @param registryId	the registry ID of the target state
-	 * @param exitOld		whether the {@link #exit() exit()} method of the currently set {@code GameState} should be called. If no state is currently loaded, setting this to true will have no effect.
-	 * @param initNew		whether the {@link #init() init()} method of the new {@code GameState} should be called
+	 * @param exitOld		whether the {@link com.accele.gage.state.GameState#exit(GameState) exit(GameState)} method of the currently set {@code GameState} should be called. If no state is currently loaded, setting this to true will have no effect.
+	 * @param initNew		whether the {@link com.accele.gage.state.GameState#init(GameState) init(GameState)} method of the new {@code GameState} should be called
 	 */
 	public void setCurrentState(String registryId, boolean exitOld, boolean initNew) {
 		currentContext.setCurrentState(registryId, exitOld, initNew);
@@ -634,8 +634,8 @@ public class GAGE {
 	 * 
 	 * @param contextRegistryId	the registry ID of the target context
 	 * @param stateRegistryId	the registry ID of the target state
-	 * @param exitOld			whether the {@link #exit() exit()} method of the currently set {@code GameState} should be called. If no state is currently loaded, setting this to true will have no effect.
-	 * @param initNew			whether the {@link #init() init()} method of the new {@code GameState} should be called
+	 * @param exitOld			whether the {@link com.accele.gage.state.GameState#exit(GameState) exit(GameState)} method of the currently set {@code GameState} should be called. If no state is currently loaded, setting this to true will have no effect.
+	 * @param initNew			whether the {@link com.accele.gage.state.GameState#init(GameState) init(GameState)} method of the new {@code GameState} should be called
 	 */
 	public void setCurrentState(String contextRegistryId, String stateRegistryId, boolean exitOld, boolean initNew) {
 		GAGEContext newContext = contextRegistry.getEntry(contextRegistryId);

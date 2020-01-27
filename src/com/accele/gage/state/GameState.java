@@ -52,6 +52,7 @@ public abstract class GameState implements Indexable, Tickable, Renderable, Clea
 	 * <p>
 	 * Note that {@code oldState} can be {@code null}, especially during the initialization phase of engine termination.
 	 * </p>
+	 * @param oldState the old {@code GameState} that was the current state
 	 */
 	public abstract void init(GameState oldState);
 	
