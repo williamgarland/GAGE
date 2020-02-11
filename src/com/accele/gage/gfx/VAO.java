@@ -3,6 +3,7 @@ package com.accele.gage.gfx;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33;
 
 import com.accele.gage.Cleanable;
 import com.accele.gage.GAGEException;
@@ -24,10 +25,13 @@ public class VAO implements Cleanable {
 		GL30.glBindVertexArray(vaoId);
 		
 		for (VertexAttributeLayout layout : this.layouts) {
-			GL15.glBindBuffer(layout.buffer.getTarget(), layout.buffer.getVboId());
+			if (layout.buffer != null)
+				GL15.glBindBuffer(layout.buffer.getTarget(), layout.buffer.getVboId());
 			GL20.glEnableVertexAttribArray(layout.index);
 			GL20.glVertexAttribPointer(layout.index, layout.size, layout.type, layout.normalized, layout.stride, layout.pointer);
-			GL15.glBindBuffer(layout.buffer.getTarget(), 0);
+			GL33.glVertexAttribDivisor(layout.index, layout.divisor);
+			if (layout.buffer != null)
+				GL15.glBindBuffer(layout.buffer.getTarget(), 0);
 		}
 		
 		unbind();
@@ -35,13 +39,13 @@ public class VAO implements Cleanable {
 	
 	public void bind() {
 		GL30.glBindVertexArray(vaoId);
-		for (VertexAttributeLayout layout : layouts)
-			GL20.glEnableVertexAttribArray(layout.index);
+		//for (VertexAttributeLayout layout : layouts)
+		//	GL20.glEnableVertexAttribArray(layout.index);
 	}
 	
 	public void unbind() {
-		for (VertexAttributeLayout layout : layouts)
-			GL20.glDisableVertexAttribArray(layout.index);
+		//for (VertexAttributeLayout layout : layouts)
+		//	GL20.glDisableVertexAttribArray(layout.index);
 		GL30.glBindVertexArray(0);
 	}
 	
@@ -63,6 +67,7 @@ public class VAO implements Cleanable {
 		private int stride;
 		private int pointer;
 		private VBO buffer;
+		private int divisor;
 		
 		public VertexAttributeLayout(int index, int size, int type, boolean normalized, int stride,
 				int pointer, VBO buffer) {
@@ -73,6 +78,19 @@ public class VAO implements Cleanable {
 			this.stride = stride;
 			this.pointer = pointer;
 			this.buffer = buffer;
+			this.divisor = 0;
+		}
+		
+		public VertexAttributeLayout(int index, int size, int type, boolean normalized, int stride,
+				int pointer, VBO buffer, int divisor) {
+			this.index = index;
+			this.size = size;
+			this.type = type;
+			this.normalized = normalized;
+			this.stride = stride;
+			this.pointer = pointer;
+			this.buffer = buffer;
+			this.divisor = divisor;
 		}
 		
 		public int getIndex() {
@@ -101,6 +119,10 @@ public class VAO implements Cleanable {
 		
 		public VBO getBuffer() {
 			return buffer;
+		}
+		
+		public int getDivisor() {
+			return divisor;
 		}
 	}
 	

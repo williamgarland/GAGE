@@ -1,7 +1,11 @@
 package com.accele.gage;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.lwjgl.opengl.GL11;
 
+import com.accele.gage.callbacks.ValueChangeCallback;
 import com.accele.gage.gfx.TextureFilterParameter;
 import com.accele.gage.gfx.TextureWrapParameter;
 
@@ -41,6 +45,8 @@ public class GameConfiguration {
 	private TextureFilterParameter textureMinFilterParameter;
 	private boolean generateTextureMipmaps;
 	
+	private List<ValueChangeCallback<Integer>> fpsChangeCallbacks;
+	
 	GameConfiguration() {
 		this.ticksPerSecond = DEFAULT_TICKS_PER_SECOND;
 		this.doEntityCollision = true;
@@ -49,6 +55,7 @@ public class GameConfiguration {
 		this.masterVolumeMuted = false;
 		this.generateTextureMipmaps = true;
 		useDefaultTextureParameters();
+		this.fpsChangeCallbacks = new ArrayList<>();
 	}
 	
 	/**
@@ -101,6 +108,7 @@ public class GameConfiguration {
 	}
 	
 	void setFps(int fps) {
+		fpsChangeCallbacks.forEach(c -> c.call(this.fps, fps));
 		this.fps = fps;
 	}
 	
@@ -332,6 +340,10 @@ public class GameConfiguration {
 		this.textureWrapTParameter = DEFAULT_REPEATING_TEXTURE_WRAP_T_PARAMETER;
 		this.textureMinFilterParameter = DEFAULT_TEXTURE_MIN_FILTER_PARAMETER;
 		this.textureMagFilterParameter = DEFAULT_TEXTURE_MAG_FILTER_PARAMETER;
+	}
+	
+	public void addFpsChangeCallback(ValueChangeCallback<Integer> callback) {
+		fpsChangeCallbacks.add(callback);
 	}
 	
 }

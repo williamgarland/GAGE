@@ -126,7 +126,7 @@ public class Texture implements Indexable, Cleanable {
 	 * it is simply a view of the original texture. Because of this, despite this sub-texture having a registry ID, it should not be registered in the texture registry 
 	 * because the registry would then attempt to clean both the sub-texture and the parent texture. The registry ID of the sub-texture serves only to mark the texture 
 	 * with a unique identifier for user purposes. The registry ID of the sub-texture will be the registry ID of the original texture followed by {@code _sub_region_x_y_width_height},
-	 * where {@code x}, {@code y}, {@code width}, and {@code height} denote the values passed in to their respective parameters.
+	 * where {@code x}, {@code y}, {@code width}, and {@code height} are the values passed in to their respective parameters.
 	 * </p>
 	 * @param x the upper-left x-coordinate on the original image to use in the sub-texture
 	 * @param y the upper-left y-coordinate on the original image to use in the sub-texture
@@ -217,6 +217,15 @@ public class Texture implements Indexable, Cleanable {
 	 */
 	public float getHeight() {
 		return height;
+	}
+	
+	/**
+	 * Returns the texture ID of the {@code Texture} used by OpenGL.
+	 * 
+	 * @return the texture ID of the {@code Texture} used by OpenGL
+	 */
+	public int getTextureId() {
+		return textureId;
 	}
 	
 }

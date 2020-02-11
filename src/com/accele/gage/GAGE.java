@@ -1,5 +1,8 @@
 package com.accele.gage;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.function.Consumer;
 
@@ -12,9 +15,12 @@ import com.accele.gage.control.KeyListener;
 import com.accele.gage.control.MouseListener;
 import com.accele.gage.entity.EntityHandler;
 import com.accele.gage.gfx.Animation;
+import com.accele.gage.gfx.BatchedRenderer;
 import com.accele.gage.gfx.Font;
 import com.accele.gage.gfx.Graphics;
+import com.accele.gage.gfx.ImmediateRenderer;
 import com.accele.gage.gfx.Model;
+import com.accele.gage.gfx.RenderingMode;
 import com.accele.gage.gfx.Shader;
 import com.accele.gage.gfx.Texture;
 import com.accele.gage.gfx.Window;
@@ -63,10 +69,15 @@ import com.accele.gage.tile.TileMap;
  */
 public class GAGE {
 	
+	private static final int DEFAULT_DRAW_BATCH_SIZE = 4096;
+	
 	private static GAGE instance;
 	private static int[] customWindowHints;
+	private static int drawBatchSize = DEFAULT_DRAW_BATCH_SIZE;
 	
 	private Graphics graphics;
+	private RenderingMode renderingMode;
+	private Map<RenderingMode, Graphics> renderers;
 	private GameConfiguration config;
 	private EntityHandler entityHandler;
 	private SoundHandler soundHandler;
@@ -99,7 +110,11 @@ public class GAGE {
 		this.modelRegistry = new Registry<>();
 		this.fontRegistry = new Registry<>();
 		this.shaderRegistry = new Registry<>();
-		this.graphics = new Graphics(modelRegistry, fontRegistry, shaderRegistry);
+		this.renderers = new HashMap<>();
+		renderers.put(RenderingMode.IMMEDIATE, new ImmediateRenderer(modelRegistry, fontRegistry, shaderRegistry));
+		renderers.put(RenderingMode.BATCHED, new BatchedRenderer(drawBatchSize, shaderRegistry, fontRegistry));
+		this.renderingMode = RenderingMode.BATCHED;
+		this.graphics = renderers.get(renderingMode);
 		this.config = new GameConfiguration();
 		this.textureRegistry = new Registry<>();
 		this.configurationRegistry = new Registry<>();
@@ -416,6 +431,19 @@ public class GAGE {
 	 */
 	public Graphics getGraphics() {
 		return graphics;
+	}
+	
+	public RenderingMode getRenderingMode() {
+		return renderingMode;
+	}
+	
+	public Map<RenderingMode, Graphics> getRenderers() {
+		return Collections.unmodifiableMap(renderers);
+	}
+	
+	public void setRenderingMode(RenderingMode renderingMode) {
+		this.renderingMode = renderingMode;
+		this.graphics = renderers.get(renderingMode);
 	}
 	
 	/**
@@ -774,6 +802,15 @@ public class GAGE {
 	 */
 	public static void useDefaultWindowHints() {
 		customWindowHints = null;
+	}
+	
+	public static void setDrawBatchSize(int drawBatchSize) {
+		if (drawBatchSize > 0)
+			GAGE.drawBatchSize = drawBatchSize;
+	}
+	
+	public static void useDefaultDrawBatchSize() {
+		drawBatchSize = DEFAULT_DRAW_BATCH_SIZE;
 	}
 	
 }

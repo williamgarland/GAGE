@@ -63,7 +63,9 @@ public class GAGEContext implements Indexable, Tickable, Renderable, Cleanable {
 	@Override
 	public void render(Graphics g, double interpolation) {
 		window.onCycleBegin();
+		g.begin();
 		currentState.render(g, interpolation);
+		g.end();
 		window.onCycleEnd();
 	}
 	

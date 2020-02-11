@@ -21,9 +21,14 @@ public class VBO implements Cleanable {
 		}
 		this.vboId = GL15.glGenBuffers();
 		this.target = meta.target;
-		this.size = meta.data.length;
 		GL15.glBindBuffer(target, vboId);
-		GL15.glBufferData(target, meta.data, meta.usage);
+		if (meta.data == null) {
+			GL15.glBufferData(meta.target, meta.size, meta.usage);
+			this.size = meta.size;
+		} else {
+			GL15.glBufferData(target, meta.data, meta.usage);
+			this.size = meta.data.length;
+		}
 		GL15.glBindBuffer(target, 0);
 	}
 	
@@ -56,6 +61,7 @@ public class VBO implements Cleanable {
 	public static class VBOMeta {
 		private int target;
 		private float[] data;
+		private int size;
 		private int usage;
 		
 		public VBOMeta(int target, float[] data, int usage) {
@@ -64,12 +70,22 @@ public class VBO implements Cleanable {
 			this.usage = usage;
 		}
 		
-		public float[] getData() {
-			return data;
+		public VBOMeta(int target, int size, int usage) {
+			this.target = target;
+			this.size = size;
+			this.usage = usage;
 		}
 		
 		public int getTarget() {
 			return target;
+		}
+		
+		public float[] getData() {
+			return data;
+		}
+		
+		public int getSize() {
+			return size;
 		}
 		
 		public int getUsage() {
