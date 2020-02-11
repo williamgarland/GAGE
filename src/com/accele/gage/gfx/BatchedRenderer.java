@@ -9,7 +9,6 @@ import org.lwjgl.system.MemoryUtil;
 
 import com.accele.gage.Registry;
 import com.accele.gage.Resource;
-import com.accele.gage.ResourceLoaders;
 import com.accele.gage.gfx.VBO.VBOMeta;
 import com.accele.gage.math.Matrix4f;
 
@@ -38,7 +37,7 @@ public class BatchedRenderer implements Graphics {
 	
 	public BatchedRenderer(int batchSize, Registry<Shader> shaderRegistry, Registry<Font> fontRegistry) {
 		this.batchSize = batchSize;
-		this.rectShader = new Shader("gage.rect",
+		this.rectShader = new Shader("gage.batched.rect",
 				new Resource<>((src, args) -> "#version 330 core\n" + 
 						"\n" + 
 						"layout (location = 0) in vec3 position;\n" + 
@@ -64,7 +63,7 @@ public class BatchedRenderer implements Graphics {
 						"	color = frag_color;\n" + 
 						"}", null));
 		shaderRegistry.register(rectShader);
-		this.texturedRectShader = new Shader("gage.textured_rect",
+		this.texturedRectShader = new Shader("gage.batched.textured_rect",
 				new Resource<>((src, args) -> "#version 330 core\n" + 
 						"\n" + 
 						"layout (location = 0) in vec3 position;\n" + 
@@ -99,9 +98,7 @@ public class BatchedRenderer implements Graphics {
 		this.viewMatrix = new Matrix4f();
 		this.projectionMatrix = new Matrix4f().setOrtho2D(-1, 1, -1, 1);
 		this.color = Color.WHITE;
-		this.font = new Font("gage.default", new Resource<>(ResourceLoaders.INTERNAL_FONT_LOADER,
-				null, new java.awt.Font("Arial", 0, 30), true));
-		fontRegistry.register(font);
+		this.font = fontRegistry.getEntry("gage.default");
 		this.rectModel = new VBO(new Resource<>((src, args) -> new VBOMeta(GL15.GL_ARRAY_BUFFER, new float[] {
 				-1f, -1f, 0f, 1f, -1f, 0f, 1f, 1f, 0f,
 				-1f, -1f, 0f, 1f, 1f, 0f, -1f, 1f, 0f
