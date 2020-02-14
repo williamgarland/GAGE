@@ -69,11 +69,7 @@ import com.accele.gage.tile.TileMap;
  */
 public class GAGE {
 	
-	private static final int DEFAULT_DRAW_BATCH_SIZE = 4096;
-	
 	private static GAGE instance;
-	private static int[] customWindowHints;
-	private static int drawBatchSize = DEFAULT_DRAW_BATCH_SIZE;
 	
 	private Graphics graphics;
 	private RenderingMode renderingMode;
@@ -99,12 +95,17 @@ public class GAGE {
 	private GAGEContext mainContext;
 	private GAGEContext currentContext;
 	
-	private GAGE(int width, int height, String title) {
+	private GAGE(int width, int height, String title, InitEnvironment initEnvironment) {
+		this.logger = new Logger(initEnvironment.getLoggerDestination(), initEnvironment.getLoggerErrorDestination(), 
+				initEnvironment.getLoggerPrefix(), initEnvironment.getLoggerDateFormat());
+		
 		performChecks();
+		
+		logger.info("Initializing GAGE with dimensions " + width + "x" + height + " and title \"" + title + "\"");
 		
 		System.gc();
 		
-		GAGEContext mainContext = new GAGEContext(width, height, title, customWindowHints, false);
+		GAGEContext mainContext = new GAGEContext(width, height, title, initEnvironment.getCustomWindowHints(), false);
 		
 		this.soundHandler = new SoundHandler();
 		this.modelRegistry = new Registry<>();
@@ -112,7 +113,7 @@ public class GAGE {
 		this.shaderRegistry = new Registry<>();
 		this.renderers = new HashMap<>();
 		renderers.put(RenderingMode.IMMEDIATE, new ImmediateRenderer(modelRegistry, fontRegistry, shaderRegistry));
-		renderers.put(RenderingMode.BATCHED, new BatchedRenderer(drawBatchSize, shaderRegistry, fontRegistry));
+		renderers.put(RenderingMode.BATCHED, new BatchedRenderer(initEnvironment.getDrawBatchSize(), shaderRegistry, fontRegistry));
 		this.renderingMode = RenderingMode.BATCHED;
 		this.graphics = renderers.get(renderingMode);
 		this.config = new GameConfiguration();
@@ -125,21 +126,26 @@ public class GAGE {
 		this.contextRegistry = new Registry<>();
 		this.entityHandler = new EntityHandler(config);
 		this.rand = new Random();
-		this.logger = new Logger(System.out, "");
 		
 		contextRegistry.register(mainContext);
 		this.mainContext = mainContext;
 		this.currentContext = mainContext;
+		
+		logger.info("GAGE initialized");
 	}
 	
 	private void performChecks() {
+		logger.info("", "Performing initialization checks...", false);
 		if (Thread.currentThread().isDaemon())
 			throw new RuntimeException("Cannot run GAGE on a daemon thread.");
+		logger.log("OK");
 	}
 	
 	private void performStartChecks() {
+		logger.info("", "Performing engine startup checks...", false);
 		if (mainContext.getCurrentState() == null)
 			throw new RuntimeException("There is no GameState loaded in the current context.");
+		logger.log("OK");
 	}
 	
 	/**
@@ -156,6 +162,7 @@ public class GAGE {
 	 */
 	public void start() {
 		performStartChecks();
+		logger.info("Starting engine");
 		running = true;
 		run();
 	}
@@ -241,6 +248,7 @@ public class GAGE {
 	 */
 	public void stop() {
 		running = false;
+		logger.info("Stopping engine");
 	}
 	
 	/**
@@ -250,8 +258,12 @@ public class GAGE {
 	 * This method should only be used as a last resort; Whatever frame the engine was currently on will not be allowed to finish execution. To stop the engine under
 	 * normal conditions, use {@link #stop()}.
 	 * </p>
+	 * <p>
+	 * This method will always cause the JVM to terminate with a non-zero exit code.
+	 * </p>
 	 */
 	public void forceQuit() {
+		logger.fatal("Force quitting engine");
 		clean();
 		System.exit(1);
 	}
@@ -444,6 +456,7 @@ public class GAGE {
 	public void setRenderingMode(RenderingMode renderingMode) {
 		this.renderingMode = renderingMode;
 		this.graphics = renderers.get(renderingMode);
+		logger.info("Set rendering mode to " + renderingMode.toString());
 	}
 	
 	/**
@@ -493,6 +506,7 @@ public class GAGE {
 		currentContext.getWindow().detachContext();
 		currentContext = newContext;
 		currentContext.getWindow().attachContext();
+		logger.info("Set current context to \"" + registryId + "\"");
 	}
 	
 	/**
@@ -638,6 +652,8 @@ public class GAGE {
 		currentContext.getWindow().detachContext();
 		currentContext = mainContext;
 		currentContext.getWindow().attachContext();
+		
+		logger.info("Set current context to \"" + mainContext.getRegistryId() + "\"");
 	}
 	
 	/**
@@ -677,6 +693,7 @@ public class GAGE {
 		if (initNew)
 			newState.init(oldState);
 		newContext.currentState = newState;
+		logger.info("Set the current context to \"" + newContext.getRegistryId() + "\" and the current state to \"" + newState.getRegistryId() + "\"");
 	}
 	
 	/**
@@ -716,18 +733,23 @@ public class GAGE {
 	 * @param action			the action to be performed in the specified context
 	 */
 	public void hotSwapContext(String contextRegistryId, Consumer<GAGE> action) {
+		logger.info("Performing hot-swap on context \"" + contextRegistryId + "\"");
 		GAGEContext prev = currentContext;
 		setCurrentContext(contextRegistryId);
 		action.accept(this);
 		currentContext.getWindow().detachContext();
 		prev.getWindow().attachContext();
 		currentContext = prev;
+		logger.info("Set current context to \"" + currentContext.getRegistryId() + "\"");
 	}
 	
 	/**
 	 * Initializes the engine using the specified screen width, screen height, and title.
 	 * This method must be called before using any other method in the engine and may only
 	 * be called once per instance of the engine.
+	 * <p>
+	 * Calling this method will initialize the engine with default initialization parameters via a default implementation of {@code InitEnvironment}.
+	 * </p>
 	 * 
 	 * @param screenWidth	the width of the viewable screen area in pixels
 	 * @param screenHeight	the height of the viewable screen area in pixels
@@ -736,9 +758,25 @@ public class GAGE {
 	 * @throws RuntimeException if GAGE was already initialized or if the engine failed any necessary startup checks
 	 */
 	public static void init(int screenWidth, int screenHeight, String title) {
+		init(screenWidth, screenHeight, title, new InitEnvironment());
+	}
+	
+	/**
+	 * Initializes the engine using the specified screen width, screen height, title, and {@code InitEnvironment}.
+	 * This method must be called before using any other method in the engine and may only
+	 * be called once per instance of the engine.
+	 * 
+	 * @param screenWidth		the width of the viewable screen area in pixels
+	 * @param screenHeight		the height of the viewable screen area in pixels
+	 * @param title				the title of the window
+	 * @param initEnvironment	the {@code InitEnvironment} to use when initializing the engine
+	 * 
+	 * @throws RuntimeException if GAGE was already initialized or if the engine failed any necessary startup checks
+	 */
+	public static void init(int screenWidth, int screenHeight, String title, InitEnvironment initEnvironment) {
 		if (instance != null)
 			throw new RuntimeException("GAGE is already initialized.");
-		instance = new GAGE(screenWidth, screenHeight, title);
+		instance = new GAGE(screenWidth, screenHeight, title, initEnvironment);
 	}
 	
 	/**
@@ -760,57 +798,6 @@ public class GAGE {
 	 */
 	public static boolean isInitialized() {
 		return instance != null;
-	}
-	
-	/**
-	 * Sets custom window hints to use when initializing the {@link com.accele.gage.gfx.Window Window}.
-	 * <p>
-	 * GAGE uses the programmable pipeline version of the LWJGL API, and as a result also uses the GLFW API as the windowing system, 
-	 * so all available window hints can be found in the {@link org.lwjgl.glfw.GLFW GLFW} class.
-	 * By default, GAGE uses a predefined set of window hints upon initializing the {@code Window} (see the {@link com.accele.gage.gfx.Window Window} class for details).
-	 * Calling this method will override these presets and instead use the specified custom hints.
-	 * This method must be called prior to calling the {@link #init(int, int, String)} method; calling it after GAGE has already been initialized will have no effect.
-	 * </p>
-	 * <p>
-	 * Note that this method expects hints to be provided in key-value order; the key for a given window hint is immediately followed by its matching value, 
-	 * which then is followed by subsequent key-value pairs.
-	 * </p>
-	 * <p>Example:</p>
-	 * <pre>
-	 * setCustomWindowHints(new int[] { GLFW_SAMPLES, 4, GLFW_CONTEXT_VERSION_MAJOR, 3, GLFW_CONTEXT_VERSION_MINOR, 2 });
-	 * </pre>
-	 * @param hints		the array of window hints to use when initializing the {@code Window} in key-value order
-	 * @see com.accele.gage.gfx.Window Window
-	 * @see org.lwjgl.glfw.GLFW GLFW
-	 */
-	public static void setCustomWindowHints(int[] hints) {
-		if (hints.length % 2 != 0)
-			throw new IllegalArgumentException("Invalid number of window hints; hints must be specified in key-value pairs.");
-		customWindowHints = hints;
-	}
-	
-	/**
-	 * Tells the engine to use the default window hints when initializing the {@link com.accele.gage.gfx.Window Window}.
-	 * <p>
-	 * GAGE uses a predefined set of window hints by default, so calling this method without also having called {@link #setCustomWindowHints(int[])} will have no effect.
-	 * Additionally, this method must be called prior to calling the {@link #init(int, int, String)} method; calling it after GAGE has already been initialized will have no effect.
-	 * </p>
-	 * <p>
-	 * For the list of default window hints used by GAGE, see the {@link com.accele.gage.gfx.Window Window} class.
-	 * </p>
-	 * @see com.accele.gage.gfx.Window Window
-	 */
-	public static void useDefaultWindowHints() {
-		customWindowHints = null;
-	}
-	
-	public static void setDrawBatchSize(int drawBatchSize) {
-		if (drawBatchSize > 0)
-			GAGE.drawBatchSize = drawBatchSize;
-	}
-	
-	public static void useDefaultDrawBatchSize() {
-		drawBatchSize = DEFAULT_DRAW_BATCH_SIZE;
 	}
 	
 }
