@@ -96,7 +96,7 @@ public class GAGE {
 	private GAGEContext currentContext;
 	
 	private GAGE(int width, int height, String title, InitEnvironment initEnvironment) {
-		this.logger = new Logger(initEnvironment.getLoggerDestination(), initEnvironment.getLoggerErrorDestination(), 
+		this.logger = new Logger(this, initEnvironment.getLoggerDestination(), initEnvironment.getLoggerErrorDestination(), 
 				initEnvironment.getLoggerPrefix(), initEnvironment.getLoggerDateFormat());
 		
 		performChecks();
